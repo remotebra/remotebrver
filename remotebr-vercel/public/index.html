@@ -1,0 +1,2338 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="manifest" href="/manifest.json">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="RemoteBR">
+<meta name="theme-color" content="#2563eb">
+<!-- Google Analytics 4 -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-7044D1TDM0"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+  gtag('config', 'G-7044D1TDM0');
+</script>
+<title>RemoteBR — Vagas Internacionais para Brasileiros</title>
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🌎</text></svg>">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/pdfjs-dist@3.11.174/build/pdf.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+<style>
+:root {
+  /* Light theme (padrão) */
+  --bg: #f5f5f7;
+  --surface: #ffffff;
+  --surface2: #f0f0f4;
+  --border: #e2e2e8;
+  --border2: #d0d0d8;
+  --text: #111118;
+  --muted: #555560;
+  --muted2: #888895;
+  --accent: #2563eb;
+  --accent-dark: #1d4ed8;
+  --accent-dim: rgba(37,99,235,0.08);
+  --accent-dim2: rgba(37,99,235,0.15);
+  --danger: #dc2626;
+  --info: #0284c7;
+  --gold: #d97706;
+  --font-sans: 'DM Sans', sans-serif;
+  --font-serif: 'Instrument Serif', serif;
+}
+
+/* Dark theme */
+body.dark {
+  --bg: #0a0a0f;
+  --surface: #111118;
+  --surface2: #18181f;
+  --border: #252530;
+  --border2: #32323f;
+  --text: #f2f2f5;
+  --muted: #b0b0c0;
+  --muted2: #808090;
+  --accent: #4f8ef7;
+  --accent-dark: #3b7de8;
+  --accent-dim: rgba(79,142,247,0.10);
+  --accent-dim2: rgba(79,142,247,0.18);
+  --danger: #f05252;
+  --info: #38bdf8;
+  --gold: #f59e0b;
+}
+
+body.dark nav {
+  background: rgba(10,10,15,0.95);
+}
+
+body.dark #mobileMenu {
+  background: rgba(10,10,15,0.98);
+}
+
+body.dark #mobileBottomNav {
+  background: rgba(10,10,15,0.97);
+}
+
+/* Dark theme overrides for elements with hardcoded colors */
+body.dark {
+  background: var(--bg);
+  color: var(--text);
+}
+body.dark .sidebar-left,
+body.dark .sidebar-right,
+body.dark .main-content {
+  background: var(--bg);
+}
+
+
+
+/* Mobile filter option buttons */
+.mobile-filter-opt {
+  width: 100%;
+  padding: 12px 16px;
+  border-radius: 10px;
+  border: 0.5px solid var(--border2);
+  background: var(--surface);
+  color: var(--text);
+  font-size: 15px;
+  text-align: left;
+  cursor: pointer;
+  font-family: var(--font-sans);
+  transition: all .15s;
+}
+.mobile-filter-opt.active {
+  border-color: var(--accent);
+  background: var(--accent-dim);
+  color: var(--accent);
+  font-weight: 500;
+}
+
+/* ===== MOBILE CARD META ===== */
+.jc-meta-mobile {
+  display: none; /* hidden on desktop */
+}
+.jc-meta-desktop {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  align-items: center;
+}
+.jc-meta-item {
+  font-size: 12px;
+  color: var(--muted);
+  white-space: nowrap;
+}
+
+@media(max-width:600px) {
+  /* Show mobile meta, hide desktop meta */
+  .jc-meta-mobile {
+    display: flex !important;
+    flex-wrap: wrap !important;
+    gap: 6px !important;
+    margin-top: 4px !important;
+    align-items: center !important;
+  }
+  .jc-meta-desktop {
+    display: none !important;
+  }
+  .jc-meta-item {
+    font-size: 12px !important;
+    color: var(--muted) !important;
+    background: var(--surface2) !important;
+    border: 0.5px solid var(--border) !important;
+    border-radius: 6px !important;
+    padding: 2px 7px !important;
+    white-space: nowrap !important;
+  }
+  /* Job title wraps on mobile */
+  .job-title {
+    white-space: normal !important;
+    overflow: visible !important;
+    text-overflow: unset !important;
+    font-size: 14px !important;
+    line-height: 1.3 !important;
+  }
+  /* Hide logo on mobile to save space */
+  .job-logo {
+    display: none !important;
+  }
+}
+
+/* ===== GLOBAL OVERFLOW PREVENTION ===== */
+html {
+  overflow-x: hidden;
+}
+body {
+  overflow-x: hidden;
+  width: 100%;
+}
+img, video, iframe {
+  max-width: 100%;
+}
+/* Prevent tables from overflowing */
+table {
+  width: 100%;
+  table-layout: fixed;
+  word-break: break-word;
+}
+
+body.dark .job-card {
+  background: var(--surface);
+  border-color: var(--border);
+}
+body.dark .job-card:hover,
+body.dark .job-card.expanded {
+  background: var(--surface2);
+}
+body.dark .modal {
+  background: var(--surface);
+}
+body.dark input,
+body.dark textarea,
+body.dark select {
+  background: var(--surface2) !important;
+  color: var(--text) !important;
+  border-color: var(--border2) !important;
+}
+
+
+/* Light nav */
+nav {
+  background: rgba(245,245,247,0.95) !important;
+}
+body.dark nav {
+  background: rgba(10,10,15,0.95) !important;
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+html { scroll-behavior: smooth; }
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: 'DM Sans', sans-serif;
+  font-size: 15px;
+  line-height: 1.6;
+  min-height: 100vh;
+}
+
+/* SCROLLBAR */
+::-webkit-scrollbar { width: 6px; }
+::-webkit-scrollbar-track { background: var(--bg); }
+::-webkit-scrollbar-thumb { background: var(--border2); border-radius: 3px; }
+
+/* NAV */
+nav {
+  position: sticky; top: 0; z-index: 100;
+  background: rgba(245,245,247,0.96);
+  backdrop-filter: blur(12px);
+  border-bottom: 0.5px solid var(--border);
+  padding: 0 2rem;
+  display: flex; align-items: center; justify-content: space-between;
+  height: 60px;
+}
+.nav-logo {
+  display: flex; align-items: center; gap: 10px;
+  font-family: 'Instrument Serif', serif;
+  font-size: 22px; color: var(--text); text-decoration: none;
+}
+.logo-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--accent); animation: pulse 2s infinite; }
+@keyframes pulse { 0%,100%{opacity:1;transform:scale(1)} 50%{opacity:.5;transform:scale(.8)} }
+.nav-links { display: flex; align-items: center; gap: 6px; }
+.nav-btn {
+  padding: 7px 16px; border-radius: 8px; border: 0.5px solid var(--border2);
+  background: transparent; color: var(--muted); font-size: 13px;
+  font-family: 'DM Sans', sans-serif; cursor: pointer; transition: all .2s;
+}
+.nav-btn:hover { color: var(--text); border-color: var(--muted2); }
+.nav-btn.primary {
+  background: var(--accent); color: #ffffff;
+  border-color: var(--accent); font-weight: 500;
+}
+.nav-btn.primary:hover { background: var(--accent-dark); border-color: var(--accent-dark); }
+
+/* LAYOUT */
+.app { display: grid; grid-template-columns: 280px 1fr 320px; min-height: calc(100vh - 60px); }
+
+/* LEFT SIDEBAR */
+.sidebar-left {
+  border-right: 0.5px solid var(--border);
+  padding: 1.5rem;
+  position: sticky; top: 60px; height: calc(100vh - 60px); overflow-y: auto;
+}
+
+/* MAIN */
+.main { padding: 1.5rem 2rem; }
+
+/* RIGHT SIDEBAR */
+.sidebar-right {
+  border-left: 0.5px solid var(--border);
+  padding: 1.5rem;
+  position: sticky; top: 60px; height: calc(100vh - 60px); overflow-y: auto;
+}
+
+/* SECTION LABELS */
+.section-label {
+  font-size: 10px; font-weight: 500; letter-spacing: .1em;
+  text-transform: uppercase; color: var(--muted2);
+  margin-bottom: .75rem;
+}
+
+/* PROFILE CARD */
+.profile-card {
+  background: var(--surface);
+  border: 0.5px solid var(--border);
+  border-radius: 14px;
+  padding: 1.25rem;
+  margin-bottom: 1.5rem;
+  text-align: center;
+}
+.avatar {
+  width: 64px; height: 64px; border-radius: 50%;
+  background: var(--accent-dim2);
+  border: 2px solid var(--accent);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 24px; margin: 0 auto 12px;
+  font-family: 'Instrument Serif', serif;
+  color: var(--accent);
+  cursor: pointer; transition: all .2s;
+  position: relative; overflow: hidden;
+}
+.avatar:hover { border-color: var(--accent-dark); }
+.avatar-upload {
+  position: absolute; inset: 0;
+  background: rgba(13,15,14,.7);
+  display: flex; align-items: center; justify-content: center;
+  opacity: 0; transition: opacity .2s;
+  font-size: 12px; color: var(--accent);
+}
+.avatar:hover .avatar-upload { opacity: 1; }
+.profile-name {
+  font-family: 'Instrument Serif', serif;
+  font-size: 18px; margin-bottom: 2px;
+}
+.profile-title { font-size: 12px; color: var(--muted); margin-bottom: 12px; }
+.profile-stats {
+  display: grid; grid-template-columns: 1fr 1fr;
+  gap: 8px; margin-bottom: 12px;
+}
+.stat {
+  background: var(--surface2);
+  border: 0.5px solid var(--border);
+  border-radius: 8px; padding: 8px;
+  text-align: center;
+}
+.stat-val { font-size: 18px; font-weight: 500; color: var(--accent); }
+.stat-lbl { font-size: 10px; color: var(--muted); }
+.match-score {
+  background: var(--accent-dim);
+  border: 0.5px solid rgba(59,130,246,0.15);
+  border-radius: 8px; padding: 8px 12px;
+  font-size: 12px; color: var(--accent);
+  display: flex; align-items: center; justify-content: space-between;
+}
+.match-score span { font-weight: 500; font-size: 15px; }
+
+/* UPLOAD AREA */
+.upload-area {
+  border: 1.5px dashed var(--border2);
+  border-radius: 12px; padding: 1.5rem;
+  text-align: center; cursor: pointer;
+  transition: all .2s; margin-bottom: 1.5rem;
+}
+.upload-area:hover { border-color: var(--accent); background: var(--accent-dim); }
+.upload-icon { font-size: 28px; margin-bottom: 8px; }
+.upload-text { font-size: 13px; color: var(--muted); line-height: 1.4; }
+.upload-text b { color: var(--accent); font-weight: 500; }
+input[type="file"] { display: none; }
+
+/* FILTERS */
+.filter-group { margin-bottom: 1.25rem; }
+.filter-label { font-size: 11px; color: var(--muted); margin-bottom: 6px; }
+.filter-chips { display: flex; flex-wrap: wrap; gap: 5px; }
+.chip {
+  padding: 4px 10px; border-radius: 999px;
+  border: 0.5px solid var(--border2);
+  background: transparent; color: var(--muted);
+  font-size: 12px; cursor: pointer;
+  font-family: 'DM Sans', sans-serif;
+  transition: all .15s;
+}
+.chip:hover { border-color: var(--accent); color: var(--accent); }
+.chip.active { background: var(--accent-dim); border-color: var(--accent); color: var(--accent); }
+.range-row { display: flex; align-items: center; gap: 8px; }
+.range-row input[type="range"] {
+  flex: 1; accent-color: var(--accent);
+  height: 4px;
+}
+.range-val { font-size: 12px; color: var(--accent); min-width: 50px; text-align: right; }
+
+/* SEARCH BAR */
+.search-bar {
+  display: flex; gap: 10px; margin-bottom: 1.5rem;
+  background: var(--surface);
+  border: 0.5px solid var(--border);
+  border-radius: 12px; padding: 8px 12px;
+  align-items: center;
+  transition: border-color .2s;
+}
+.search-bar:focus-within { border-color: var(--accent); }
+.search-icon { color: var(--muted2); font-size: 16px; flex-shrink: 0; }
+.search-bar input {
+  flex: 1; background: transparent; border: none;
+  color: var(--text); font-size: 14px;
+  font-family: 'DM Sans', sans-serif; outline: none;
+}
+.search-bar input::placeholder { color: var(--muted2); }
+.search-count { font-size: 12px; color: var(--muted); white-space: nowrap; }
+
+/* TABS */
+.tabs { display: flex; gap: 4px; margin-bottom: 1.5rem; border-bottom: 0.5px solid var(--border); max-width: 100%; }
+.tab {
+  padding: 8px 16px; font-size: 13px; color: var(--muted);
+  border: none; background: transparent; cursor: pointer;
+  font-family: 'DM Sans', sans-serif;
+  border-bottom: 2px solid transparent; margin-bottom: -1px;
+  transition: all .2s;
+}
+.tab:hover { color: var(--text); }
+.tab.active { color: var(--accent); border-bottom-color: var(--accent); }
+
+/* JOB CARDS — estilo Remote Rocketship */
+.jobs-grid { display: flex; flex-direction: column; gap: 1px; }
+.job-card {
+  background: var(--surface);
+  border-left: 0.5px solid var(--border);
+  border-right: 0.5px solid var(--border);
+  border-top: 0.5px solid var(--border);
+  border-bottom: none;
+  padding: .85rem 1.25rem;
+  cursor: pointer; transition: background .15s;
+}
+.job-card:last-child { border-bottom: 0.5px solid var(--border); border-radius: 0 0 12px 12px; }
+.job-card:first-child { border-radius: 12px 12px 0 0; }
+.job-card:only-child { border-radius: 12px; border-bottom: 0.5px solid var(--border); }
+.job-card:hover { background: var(--surface2); }
+.job-card.expanded { background: var(--surface2); border-color: rgba(59,130,246,.3); }
+.jc-main { display: flex; align-items: center; gap: 12px; }
+.job-logo {
+  width: 38px; height: 38px; border-radius: 8px;
+  background: var(--surface2); border: 0.5px solid var(--border);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 15px; color: var(--muted); flex-shrink: 0; overflow: hidden;
+}
+.job-logo img { width: 100%; height: 100%; object-fit: contain; border-radius: 7px; }
+.jc-body { flex: 1; min-width: 0; }
+.job-title {
+  font-size: 15px; font-weight: 600; color: var(--text);
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis; margin-bottom: 4px;
+  letter-spacing: -.01em;
+}
+.jc-meta { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; }
+.jc-mi { display: flex; align-items: center; gap: 3px; font-size: 12px; color: var(--muted); white-space: nowrap; }
+.jc-mi.sal { color: #4ade80; font-weight: 600; font-size: 12px; }
+.jc-mi.newbadge { color: var(--accent); font-weight: 600; }
+.jc-right { display: flex; align-items: center; gap: 6px; flex-shrink: 0; }
+.job-score {
+  background: var(--accent-dim); border: 0.5px solid rgba(59,130,246,.2);
+  border-radius: 6px; padding: 3px 7px; font-size: 11px;
+  color: var(--accent); font-weight: 500; white-space: nowrap;
+}
+.jc-save {
+  background: none; border: 0.5px solid var(--border);
+  border-radius: 6px; padding: 3px 7px; color: var(--muted);
+  cursor: pointer; font-size: 12px; transition: all .15s; line-height: 1.4;
+}
+.jc-save:hover { border-color: gold; color: gold; }
+
+/* EXPANDED */
+.job-expanded { display: none; margin-top: 12px; padding-top: 12px; border-top: 0.5px solid var(--border); }
+.job-card.expanded .job-expanded { display: block; }
+.ai-analysis {
+  background: var(--accent-dim); border: 0.5px solid rgba(59,130,246,0.15);
+  border-radius: 10px; padding: 1rem; margin-bottom: 12px;
+}
+.ai-header {
+  font-size: 11px; font-weight: 500; letter-spacing: .08em;
+  text-transform: uppercase; color: var(--accent);
+  margin-bottom: 8px; display: flex; align-items: center; gap: 6px;
+}
+.ai-dot { width: 6px; height: 6px; border-radius: 50%; background: var(--accent); }
+.ai-text { font-size: 13px; color: #93c5fd; line-height: 1.6; }
+.ai-loading { display: flex; gap: 4px; align-items: center; }
+.ai-loading span { width: 5px; height: 5px; border-radius: 50%; background: var(--accent); animation: bounce .7s infinite; display: inline-block; }
+.ai-loading span:nth-child(2){animation-delay:.15s}
+.ai-loading span:nth-child(3){animation-delay:.3s}
+@keyframes bounce{0%,100%{transform:translateY(0)}50%{transform:translateY(-5px)}}
+.job-desc { font-size: 13px; color: var(--muted); line-height: 1.7; margin-bottom: 12px; max-height: 90px; overflow: hidden; position: relative; }
+.job-desc::after { content:''; position:absolute; bottom:0; left:0; right:0; height:36px; background: linear-gradient(transparent, var(--surface2)); }
+.job-footer { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 8px; }
+.job-date { font-size: 11px; color: var(--muted2); }
+.jc-tools { display: flex; gap: 5px; flex-wrap: wrap; }
+.jc-tool {
+  background: none; border: 0.5px solid rgba(59,130,246,.25);
+  border-radius: 6px; padding: 3px 8px; color: var(--accent);
+  cursor: pointer; font-size: 11px; font-family: 'DM Sans',sans-serif; transition: all .15s;
+}
+.jc-tool:hover { background: var(--accent-dim); }
+.btn-apply {
+  background: var(--accent); color: #fff;
+  border: none; border-radius: 8px; padding: 8px 20px;
+  font-size: 14px; font-weight: 600; cursor: pointer;
+  font-family: 'DM Sans',sans-serif; text-decoration: none;
+  display: inline-block; transition: all .2s; white-space: nowrap;
+  box-shadow: 0 2px 8px rgba(79,142,247,0.3);
+  letter-spacing: .01em;
+}
+.btn-apply:hover { background: var(--accent-dark); box-shadow: 0 4px 12px rgba(79,142,247,0.4); transform: translateY(-1px); }
+.btn-apply.applied { background: transparent; color: #4ade80; border: 0.5px solid rgba(74,222,128,.3); box-shadow: none; transform: none; }
+
+/* LOADING */
+.loader {
+  text-align: center; padding: 4rem 2rem;
+  color: var(--muted);
+}
+.spinner {
+  width: 32px; height: 32px; border-radius: 50%;
+  border: 2px solid var(--border2);
+  border-top-color: var(--accent);
+  animation: spin .8s linear infinite;
+  margin: 0 auto 1rem;
+}
+@keyframes spin{to{transform:rotate(360deg)}}
+
+/* RIGHT SIDEBAR */
+.ai-coach {
+  background: var(--surface);
+  border: 0.5px solid var(--border);
+  border-radius: 14px; padding: 1.25rem;
+  margin-bottom: 1.25rem;
+}
+.coach-header {
+  font-family: 'Instrument Serif', serif;
+  font-size: 16px; margin-bottom: 4px;
+}
+.coach-sub { font-size: 12px; color: var(--muted); margin-bottom: 12px; }
+.coach-items { display: flex; flex-direction: column; gap: 8px; }
+.coach-item {
+  display: flex; align-items: flex-start; gap: 10px;
+  padding: 10px; border-radius: 10px;
+  background: var(--surface2); border: 0.5px solid var(--border);
+  cursor: pointer; transition: all .15s;
+}
+.coach-item:hover { border-color: var(--accent); background: var(--accent-dim); }
+.coach-icon { font-size: 18px; flex-shrink: 0; margin-top: 1px; }
+.coach-info { flex: 1; }
+.coach-title { font-size: 13px; font-weight: 500; margin-bottom: 2px; }
+.coach-desc { font-size: 11px; color: var(--muted); }
+.coach-badge {
+  font-size: 10px; padding: 2px 7px; border-radius: 999px;
+  background: var(--accent-dim); color: var(--accent);
+  border: 0.5px solid rgba(59,130,246,0.25);
+  white-space: nowrap; align-self: flex-start;
+}
+.badge-paid {
+  background: rgba(242,100,100,.08);
+  color: var(--danger);
+  border-color: rgba(242,100,100,.25);
+}
+
+/* TRENDING */
+.trending-list { display: flex; flex-direction: column; gap: 6px; }
+.trending-item {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 8px 10px; border-radius: 8px;
+  border: 0.5px solid var(--border);
+  background: var(--surface2); font-size: 12px;
+  cursor: pointer; transition: all .15s;
+}
+.trending-item:hover { border-color: var(--border2); }
+.trending-name { color: var(--text); }
+.trending-count { color: var(--muted2); font-size: 11px; }
+
+/* MODALS */
+.modal-overlay {
+  display: none; position: fixed; inset: 0;
+  background: rgba(0,0,0,.7); z-index: 200;
+  align-items: center; justify-content: center;
+}
+.modal-overlay.open { display: flex; }
+.modal {
+  background: var(--surface);
+  border: 0.5px solid var(--border2);
+  border-radius: 20px; padding: 2rem;
+  width: 90%; max-width: 480px; max-height: 85vh; overflow-y: auto;
+  animation: modalIn .25s ease;
+}
+@keyframes modalIn{from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:translateY(0)}}
+.modal-title {
+  font-family: 'Instrument Serif', serif;
+  font-size: 22px; margin-bottom: 4px;
+}
+.modal-sub { font-size: 13px; color: var(--muted); margin-bottom: 1.5rem; }
+.form-group { margin-bottom: 1rem; }
+.form-label { font-size: 12px; color: var(--muted); margin-bottom: 5px; display: block; }
+.form-input {
+  width: 100%; background: var(--surface2);
+  border: 0.5px solid var(--border2);
+  border-radius: 10px; padding: 10px 14px;
+  color: var(--text); font-size: 14px;
+  font-family: 'DM Sans', sans-serif; outline: none;
+  transition: border-color .2s;
+}
+.form-input:focus { border-color: var(--accent); }
+.form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.btn-full {
+  width: 100%; background: var(--accent); color: #ffffff;
+  border: none; border-radius: 10px; padding: 13px;
+  font-size: 15px; font-weight: 600; cursor: pointer;
+  font-family: 'DM Sans', sans-serif; transition: all .2s; margin-top: .5rem;
+  box-shadow: 0 2px 10px rgba(79,142,247,0.25);
+  letter-spacing: .01em;
+}
+.btn-full:hover { background: var(--accent-dark); box-shadow: 0 4px 16px rgba(79,142,247,0.35); transform: translateY(-1px); }
+.btn-ghost {
+  width: 100%; background: transparent; color: var(--muted);
+  border: 0.5px solid var(--border2); border-radius: 10px; padding: 11px;
+  font-size: 14px; cursor: pointer; font-family: 'DM Sans', sans-serif;
+  transition: all .2s; margin-top: 8px;
+}
+.btn-ghost:hover { color: var(--text); border-color: var(--border); }
+.modal-close {
+  float: right; background: none; border: none;
+  color: var(--muted); cursor: pointer; font-size: 20px;
+  line-height: 1; margin-top: -4px;
+}
+
+/* CHAT */
+.chat-window {
+  display: flex; flex-direction: column;
+  height: 340px;
+}
+.chat-messages {
+  flex: 1; overflow-y: auto; display: flex;
+  flex-direction: column; gap: 10px; margin-bottom: 12px;
+  padding-right: 4px;
+}
+.chat-msg {
+  max-width: 85%; padding: 10px 14px;
+  border-radius: 12px; font-size: 13px; line-height: 1.5;
+}
+.chat-msg.ai {
+  background: var(--surface2); border: 0.5px solid var(--border);
+  color: var(--text); align-self: flex-start;
+  border-bottom-left-radius: 4px;
+}
+.chat-msg.user {
+  background: var(--accent-dim2);
+  border: 0.5px solid rgba(59,130,246,0.25);
+  color: var(--text); align-self: flex-end;
+  border-bottom-right-radius: 4px;
+}
+.chat-input-row { display: flex; gap: 8px; }
+.chat-input {
+  flex: 1; background: var(--surface2);
+  border: 0.5px solid var(--border2); border-radius: 10px;
+  padding: 9px 12px; color: var(--text); font-size: 13px;
+  font-family: 'DM Sans', sans-serif; outline: none;
+  transition: border-color .2s;
+}
+.chat-input:focus { border-color: var(--accent); }
+.chat-send {
+  background: var(--accent); border: none; border-radius: 10px;
+  width: 38px; height: 38px; cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+  color: #ffffff; font-size: 16px; transition: all .2s;
+  font-family: 'DM Sans', sans-serif;
+}
+.chat-send:hover { background: var(--accent-dark); }
+
+/* EMPTY */
+.empty { text-align: center; padding: 3rem; color: var(--muted); font-size: 13px; }
+
+/* RESPONSIVE */
+
+/* ===== JOB CARD OVERFLOW FIX ===== */
+.job-card, .job-card * {
+  word-break: break-word !important;
+  overflow-wrap: break-word !important;
+  white-space: normal !important;
+}
+/* Exception: meta items that should stay on one line but can scroll */
+.jc-mi, .chip, .tab {
+  white-space: nowrap !important;
+  word-break: normal !important;
+}
+/* Job description */
+.job-expanded, .job-expanded * {
+  word-break: break-word !important;
+  overflow-wrap: break-word !important;
+  max-width: 100% !important;
+}
+/* Force any pre/code blocks to wrap */
+pre, code {
+  white-space: pre-wrap !important;
+  word-break: break-all !important;
+}
+
+@media(max-width:1100px){
+  .app{grid-template-columns:220px 1fr 260px}
+}
+@media(max-width:860px){
+  .app{grid-template-columns:1fr !important; width:100% !important;}
+  .sidebar-left,.sidebar-right{display:none !important; width:0 !important; padding:0 !important;}
+  .main { padding: 1rem !important; }
+}
+@media(max-width:600px){
+  .app { display:block !important; width:100% !important; }
+  .main { padding: 0 !important; width:100% !important; }
+}
+
+/* ===== MOBILE ===== */
+@media(max-width:600px){
+  /* CRITICAL: prevent ANY horizontal overflow */
+  html, body { overflow-x: hidden !important; max-width: 100vw !important; }
+  * { max-width: 100% !important; box-sizing: border-box !important; }
+  /* Exception: tabs and chips SHOULD scroll horizontally */
+  .tabs, .chips, .jc-meta { max-width: none !important; overflow-x: auto !important; }
+
+  /* NAV */
+  nav { padding: 0 12px !important; height: 52px !important; }
+  .nav-logo { font-size: 16px !important; gap: 6px !important; }
+  #navDesktopLinks { display: none !important; }
+  #navBtnEntrar { display: none !important; }
+  #navCta { display: none !important; }
+  #navHamburger { display: block !important; }
+  #themeToggle { display: block !important; padding: 5px 8px !important; }
+  .nav-links { gap: 4px !important; }
+
+  /* LAYOUT */
+  .app { 
+    min-height: calc(100vh - 52px) !important;
+    display: block !important;
+    grid-template-columns: none !important;
+    width: 100% !important;
+    padding: 0 !important;
+  }
+  .sidebar-left, .sidebar-right {
+    display: none !important;
+    width: 0 !important;
+    padding: 0 !important;
+    border: none !important;
+  }
+  .main {
+    padding: 0 0 80px 0 !important;
+    width: 100% !important;
+    min-width: 0 !important;
+  }
+  .main-content { padding: 12px 12px 80px 12px !important; overflow-x: hidden !important; }
+  body { overflow-x: hidden !important; }
+  * { max-width: 100% !important; box-sizing: border-box !important; }
+
+  /* TABS */
+  .tabs { flex-wrap: nowrap !important; overflow-x: auto !important; -webkit-overflow-scrolling: touch !important; scrollbar-width: none !important; gap: 2px !important; padding-bottom: 6px !important; }
+  .tabs::-webkit-scrollbar { display: none !important; }
+  .tab { font-size: 11px !important; padding: 5px 10px !important; white-space: nowrap !important; flex-shrink: 0 !important; }
+
+  /* SEARCH */
+  #searchInput { font-size: 16px !important; }
+
+  /* CHIPS */
+  .chips { flex-wrap: nowrap !important; overflow-x: auto !important; -webkit-overflow-scrolling: touch !important; scrollbar-width: none !important; }
+  .chips::-webkit-scrollbar { display: none !important; }
+  .chip { font-size: 11px !important; padding: 4px 10px !important; flex-shrink: 0 !important; white-space: nowrap !important; }
+
+  /* JOB CARDS */
+  .job-card { padding: 10px !important; }
+  .jc-logo { width: 36px !important; height: 36px !important; font-size: 13px !important; flex-shrink: 0 !important; }
+  .job-title { font-size: 13px !important; white-space: normal !important; }
+  .jc-right { display: none !important; }
+  .jc-meta { gap: 4px !important; overflow-x: auto !important; flex-wrap: nowrap !important; -webkit-overflow-scrolling: touch !important; scrollbar-width: none !important; }
+  .jc-meta::-webkit-scrollbar { display: none !important; }
+  .jc-mi { font-size: 10px !important; white-space: nowrap !important; flex-shrink: 0 !important; }
+  .jc-tools { flex-wrap: wrap !important; gap: 4px !important; }
+  .jc-tool { font-size: 11px !important; padding: 5px 8px !important; }
+  .btn-apply { font-size: 13px !important; padding: 9px 14px !important; }
+
+  /* PAGINATION */
+  #pagination { flex-direction: column !important; gap: 8px !important; }
+  #pageNumbers { display: none !important; }
+  #btnPrevPage, #btnNextPage { width: 100% !important; }
+
+  /* MODALS - slide up from bottom like native apps */
+  .modal-overlay { align-items: flex-end !important; padding: 0 !important; }
+  .modal { width: 100vw !important; max-width: 100vw !important; max-height: 90vh !important; overflow-y: auto !important; border-radius: 16px 16px 0 0 !important; margin: 0 !important; }
+  .modal-title { font-size: 1rem !important; }
+  .form-row { flex-direction: column !important; gap: 8px !important; }
+
+  /* PLANS */
+  #planosGrid { grid-template-columns: 1fr !important; }
+  #planosContainer { padding: 1rem !important; }
+  #pagePlanos h1, #pagePlanos [style*="font-size:2.8"], #pagePlanos [style*="font-size:2.5"] { font-size: 1.6rem !important; line-height: 1.2 !important; }
+  #pagePlanos [style*="font-size:1.8rem"] { font-size: 1.3rem !important; }
+  #pagePlanos [style*="padding:2rem 0 3rem"] { padding: 1rem 0 1.5rem !important; }
+  #pagePlanos [style*="width:1px;height:40px"] { display: none !important; }
+  #pagePlanos [style*="gap:24px"] { gap: 12px !important; }
+
+  /* PLANS */
+  #planosGrid { grid-template-columns: 1fr !important; }
+  #planosContainer { padding: 12px !important; }
+  #pagePlanos [style*="font-size:2.8rem"], #pagePlanos [style*="font-size:2.5rem"] { font-size: 1.5rem !important; line-height:1.2 !important; }
+  #pagePlanos [style*="font-size:1.8rem"] { font-size: 1.2rem !important; }
+  #pagePlanos [style*="padding:2rem 0 3rem"] { padding: 0.75rem 0 1rem !important; }
+  #pagePlanos [style*="width:1px;height:40px"] { display: none !important; }
+  #pagePlanos [style*="max-width:560px"] { max-width: 100% !important; font-size: 14px !important; }
+  #pagePlanos [style*="max-width:1000px"] { padding: 0 !important; max-width: 100% !important; }
+
+  /* BLOG */
+  #pageBlog [style*="max-width"] { max-width: 100% !important; padding-left: 12px !important; padding-right: 12px !important; }
+
+  /* CONTATO */
+  #pageContato [style*="max-width"] { max-width: 100% !important; padding-left: 12px !important; padding-right: 12px !important; }
+
+  /* MISC */
+  .btn-full { font-size: 14px !important; }
+  .chat-input { font-size: 16px !important; }
+  #salaryChipsDesktop { display: none !important; }
+  #mobileFilterBtn { display: block !important; }
+
+  /* FIX LEFT GAP — remove all side padding on mobile */
+  .main { padding: 10px 10px 80px 10px !important; }
+  .main-content { padding: 10px 10px 80px 10px !important; }
+  .app { padding: 0 !important; }
+  /* Ensure no stray padding from page containers */
+  #pageCandidates, #pagePlanos, #pageBlog, #pageContato, #pageCompanies, #pageAdmin {
+    padding: 0 !important;
+  }
+}
+
+/* TOAST */
+.toast {
+  position: fixed; bottom: 2rem; right: 2rem; z-index: 300;
+  background: var(--surface2); border: 0.5px solid var(--accent);
+  border-radius: 12px; padding: 12px 20px;
+  font-size: 13px; color: var(--accent);
+  animation: toastIn .3s ease;
+  display: none;
+}
+.toast.show { display: block; }
+@keyframes toastIn{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
+</style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav>
+  <a class="nav-logo" href="#" onclick="showPage('candidates')">
+    <span class="logo-dot"></span>
+    RemoteBR
+  </a>
+
+  <!-- Desktop nav links -->
+  <div style="display:flex;align-items:center;gap:20px" id="navDesktopLinks">
+    <span onclick="showPage('candidates')" id="navCandidates" style="font-size:13px;color:var(--text);cursor:pointer;padding:4px 0;border-bottom:2px solid var(--accent);transition:all .2s">Para Candidatos</span>
+    <span onclick="showPage('companies')" id="navCompanies" style="font-size:13px;color:var(--muted);cursor:pointer;padding:4px 0;border-bottom:2px solid transparent;transition:all .2s">Para Empresas</span>
+    <span onclick="showPage('planos')" id="navPlanos" style="font-size:13px;color:var(--muted);cursor:pointer;padding:4px 0;border-bottom:2px solid transparent;transition:all .2s">Planos</span>
+    <span onclick="showPage('blog')" id="navBlog" style="font-size:13px;color:var(--muted);cursor:pointer;padding:4px 0;border-bottom:2px solid transparent;transition:all .2s">Blog</span>
+    <span onclick="showPage('contato')" id="navContato" style="font-size:13px;color:var(--muted);cursor:pointer;padding:4px 0;border-bottom:2px solid transparent;transition:all .2s">Contato</span>
+    <span onclick="abrirAdmin()" id="navAdmin" style="display:none;font-size:13px;color:var(--muted);cursor:pointer;padding:4px 0;border-bottom:2px solid transparent;transition:all .2s">Admin</span>
+  </div>
+
+  <div class="nav-links">
+    <!-- Desktop buttons -->
+    <button class="nav-btn" id="navBtnEntrar" onclick="showModal('loginModal')">Entrar</button>
+    <button class="nav-btn primary" id="navCta" onclick="showModal('signupModal')">Criar conta grátis</button>
+    <!-- Theme toggle -->
+    <button id="themeToggle" onclick="toggleTheme()" title="Alternar tema" style="background:none;border:0.5px solid var(--border2);border-radius:8px;padding:6px 10px;color:var(--muted);font-size:16px;cursor:pointer;transition:all .2s;line-height:1" onmouseover="this.style.borderColor='var(--accent)'" onmouseout="this.style.borderColor='var(--border2)'">🌙</button>
+    <!-- Mobile hamburger -->
+    <button id="navHamburger" onclick="toggleMobileMenu()" style="display:none;background:none;border:0.5px solid var(--border2);border-radius:8px;padding:6px 10px;color:var(--text);font-size:18px;cursor:pointer;line-height:1">☰</button>
+  </div>
+</nav>
+
+<!-- Mobile menu dropdown -->
+<div id="mobileMenu" style="display:none;position:fixed;top:52px;left:0;right:0;background:rgba(10,10,14,0.98);backdrop-filter:blur(12px);border-bottom:0.5px solid var(--border);z-index:99;padding:1rem">
+  <div style="display:flex;flex-direction:column;gap:2px">
+    <button onclick="showPage('candidates');closeMobileMenu()" style="background:none;border:none;color:var(--text);font-size:14px;padding:12px 16px;text-align:left;cursor:pointer;border-radius:8px;font-family:var(--font-sans)">🎯 Para Candidatos</button>
+    <button onclick="showPage('companies');closeMobileMenu()" style="background:none;border:none;color:var(--muted);font-size:14px;padding:12px 16px;text-align:left;cursor:pointer;border-radius:8px;font-family:var(--font-sans)">🏢 Para Empresas</button>
+    <button onclick="showPage('planos');closeMobileMenu()" style="background:none;border:none;color:var(--muted);font-size:14px;padding:12px 16px;text-align:left;cursor:pointer;border-radius:8px;font-family:var(--font-sans)">💎 Planos</button>
+    <button onclick="showPage('blog');closeMobileMenu()" style="background:none;border:none;color:var(--muted);font-size:14px;padding:12px 16px;text-align:left;cursor:pointer;border-radius:8px;font-family:var(--font-sans)">📝 Blog</button>
+    <button onclick="showPage('contato');closeMobileMenu()" style="background:none;border:none;color:var(--muted);font-size:14px;padding:12px 16px;text-align:left;cursor:pointer;border-radius:8px;font-family:var(--font-sans)">✉️ Contato</button>
+    <div style="border-top:0.5px solid var(--border);margin:8px 0"></div>
+    <button onclick="showModal('loginModal');closeMobileMenu()" style="background:none;border:0.5px solid var(--border2);color:var(--muted);font-size:14px;padding:11px 16px;text-align:center;cursor:pointer;border-radius:8px;font-family:var(--font-sans)">Entrar</button>
+    <button onclick="showModal('signupModal');closeMobileMenu()" style="background:var(--accent);border:none;color:#fff;font-size:14px;font-weight:500;padding:11px 16px;text-align:center;cursor:pointer;border-radius:8px;font-family:var(--font-sans)">Criar conta grátis</button>
+  </div>
+</div>
+
+<!-- CANDIDATES PAGE -->
+<div id="pageCandidates">
+
+<!-- APP LAYOUT -->
+<div class="app">
+
+  <!-- LEFT SIDEBAR -->
+  <aside class="sidebar-left">
+    <!-- Profile -->
+    <div class="profile-card" id="profileCard">
+      <div class="avatar" onclick="document.getElementById('cvUpload').click()">
+        <span id="avatarInitial">?</span>
+        <div class="avatar-upload">📎</div>
+      </div>
+      <input type="file" id="cvUpload" accept=".pdf,.doc,.docx" onchange="handleCVUpload(event)">
+      <div class="profile-name" id="profileName">Seu perfil</div>
+      <div class="profile-title" id="profileTitle">Faça upload do seu currículo</div>
+      <div class="profile-stats">
+        <div class="stat"><div class="stat-val" id="statApps">0</div><div class="stat-lbl">Candidaturas</div></div>
+        <div class="stat"><div class="stat-val" id="statMatches">0</div><div class="stat-lbl">Matches</div></div>
+      </div>
+      <div class="match-score">
+        <span>Compatibilidade média</span>
+        <span id="avgMatch">—</span>
+      </div>
+    </div>
+
+    <!-- CV Upload -->
+    <div class="upload-area" onclick="document.getElementById('cvUpload').click()">
+      <div class="upload-icon">📄</div>
+      <div class="upload-text" id="uploadText">
+        <b>Envie seu currículo</b><br>
+        PDF, DOC ou DOCX<br>A IA vai encontrar vagas para você
+      </div>
+    </div>
+
+    <!-- Filters -->
+    <div class="section-label">Filtros</div>
+
+    <div class="filter-group">
+      <div class="filter-label">Tipo de trabalho</div>
+      <div class="filter-chips">
+        <button class="chip active" data-filter="type" data-val="all" onclick="setFilter('type','all',this)">Todos</button>
+        <button class="chip" data-filter="type" data-val="remote" onclick="setFilter('type','remote',this)">Remoto</button>
+        <button class="chip" data-filter="type" data-val="hybrid" onclick="setFilter('type','hybrid',this)">Híbrido</button>
+      </div>
+    </div>
+
+    <div class="filter-group">
+      <div class="filter-label">Área</div>
+      <div class="filter-chips" id="catChips">
+        <button class="chip active" data-val="" onclick="setCategory('',this)">Todas</button>
+        <button class="chip" data-val="software-dev" onclick="setCategory('software-dev',this)">Dev</button>
+        <button class="chip" data-val="design" onclick="setCategory('design',this)">Design</button>
+        <button class="chip" data-val="marketing" onclick="setCategory('marketing',this)">Marketing</button>
+        <button class="chip" data-val="product" onclick="setCategory('product',this)">Produto</button>
+        <button class="chip" data-val="data" onclick="setCategory('data',this)">Dados</button>
+        <button class="chip" data-val="customer-support" onclick="setCategory('customer-support',this)">Suporte</button>
+        <button class="chip" data-val="sales" onclick="setCategory('sales',this)">Vendas</button>
+      </div>
+    </div>
+
+    <div class="filter-group">
+      <div class="filter-label">Salário mínimo (USD/ano)</div>
+      <div class="range-row">
+        <input type="range" min="0" max="200000" step="10000" value="0" id="salaryRange" oninput="updateSalary(this.value)">
+        <span class="range-val" id="salaryVal">Qualquer</span>
+      </div>
+    </div>
+
+    <div class="filter-group">
+      <div class="filter-label">Experiência</div>
+      <div class="filter-chips">
+        <button class="chip active" data-filter="exp" data-val="all" onclick="setFilter('exp','all',this)">Todos</button>
+        <button class="chip" data-filter="exp" data-val="junior" onclick="setFilter('exp','junior',this)">Júnior</button>
+        <button class="chip" data-filter="exp" data-val="mid" onclick="setFilter('exp','mid',this)">Pleno</button>
+        <button class="chip" data-filter="exp" data-val="senior" onclick="setFilter('exp','senior',this)">Sênior</button>
+      </div>
+    </div>
+  </aside>
+
+  <!-- MAIN CONTENT -->
+  <main class="main">
+    <div class="search-bar">
+      <span class="search-icon">🔍</span>
+      <input type="text" id="searchInput" placeholder="Cargo, empresa, tecnologia..." oninput="filterJobs()">
+      <span class="search-count" id="searchCount">Carregando...</span>
+    </div>
+
+    <!-- Salary filter chips — desktop only -->
+    <div id="salaryChipsDesktop" style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:.75rem;align-items:center">
+      <span style="font-size:11px;color:var(--muted2);flex-shrink:0">💵 Salário:</span>
+      <button class="chip active" id="sal-0"      onclick="setSalaryChip(0,this)">Qualquer</button>
+      <button class="chip"        id="sal-30000"  onclick="setSalaryChip(30000,this)">$30k+</button>
+      <button class="chip"        id="sal-50000"  onclick="setSalaryChip(50000,this)">$50k+</button>
+      <button class="chip"        id="sal-80000"  onclick="setSalaryChip(80000,this)">$80k+</button>
+      <button class="chip"        id="sal-100000" onclick="setSalaryChip(100000,this)">$100k+</button>
+      <button class="chip"        id="sal-150000" onclick="setSalaryChip(150000,this)">$150k+</button>
+    </div>
+
+    <!-- Mobile filter button -->
+    <div id="mobileFilterBtn" style="display:none;margin-bottom:10px">
+      <button onclick="abrirFiltrosMobile()" style="width:100%;padding:10px;border-radius:10px;background:var(--surface);border:0.5px solid var(--border2);color:var(--text);font-size:14px;font-weight:500;cursor:pointer;font-family:var(--font-sans);display:flex;align-items:center;justify-content:space-between">
+        <span>⚙️ Filtros <span id="mobileFilterCount" style="display:none;background:var(--accent);color:#fff;border-radius:999px;padding:1px 7px;font-size:11px;margin-left:6px">1</span></span>
+        <span style="color:var(--muted)">▼</span>
+      </button>
+    </div>
+
+    <!-- Fonte de vagas -->
+    <div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:1rem">
+      <button class="chip active" id="src-all" onclick="trocarFonte('all',this)">Todas as fontes</button>
+      <button class="chip" id="src-remotive" onclick="trocarFonte('remotive',this)">Remotive</button>
+      <button class="chip" id="src-jobicy" onclick="trocarFonte('jobicy',this)">Jobicy</button>
+      <button class="chip" id="src-arbeitnow" onclick="trocarFonte('arbeitnow',this)">Arbeitnow</button>
+      <button class="chip" id="src-himalayas" onclick="trocarFonte('himalayas',this)">Himalayas</button>
+      <button class="chip" id="src-remoteok" onclick="trocarFonte('remoteok',this)">RemoteOK</button>
+      <button class="chip" id="src-wwr" onclick="trocarFonte('wwr',this)">WeWorkRemotely</button>
+      <button class="chip" id="src-lever" onclick="trocarFonte('lever',this)">Lever</button>
+      <button class="chip" id="src-greenhouse" onclick="trocarFonte('greenhouse',this)">Greenhouse</button>
+    </div>
+
+    <div class="tabs">
+      <button class="tab active" onclick="switchTab('feed',this)">🔍 Vagas</button>
+      <button class="tab" onclick="switchTab('explorar',this)">🌐 Explorar</button>
+      <button class="tab" onclick="switchTab('saved',this)">⭐ Salvos <span id="savedBadge" style="display:none;background:var(--accent);color:#ffffff;border-radius:999px;padding:1px 6px;font-size:10px;margin-left:4px">0</span></button>
+      <button class="tab" onclick="switchTab('applied',this)">📋 Candidaturas <span id="appliedBadge" style="display:none;background:#ef4444;color:#fff;border-radius:999px;padding:1px 6px;font-size:10px;margin-left:4px">0</span></button>
+    </div>
+
+    <div id="tabFeed">
+      <div class="jobs-grid" id="jobsGrid">
+        <div class="loader"><div class="spinner"></div>Buscando vagas remotas internacionais...</div>
+      </div>
+      <!-- Pagination -->
+      <div id="pagination" style="display:none;align-items:center;justify-content:space-between;padding:1rem 0;flex-wrap:wrap;gap:10px">
+        <div style="font-size:12px;color:var(--muted)" id="pageInfo"></div>
+        <div style="display:flex;gap:6px;align-items:center">
+          <button id="btnPrevPage" onclick="changePage(-1)" style="padding:7px 16px;border-radius:8px;background:var(--surface);border:0.5px solid var(--border2);color:var(--muted);font-size:13px;cursor:pointer;font-family:'DM Sans',sans-serif;transition:all .15s" onmouseover="this.style.borderColor='var(--accent)';this.style.color='var(--accent)'" onmouseout="this.style.borderColor='var(--border2)';this.style.color='var(--muted)'">← Anterior</button>
+          <div id="pageNumbers" style="display:flex;gap:4px"></div>
+          <button id="btnNextPage" onclick="changePage(1)" style="padding:7px 16px;border-radius:8px;background:var(--accent);border:none;color:#fff;font-size:13px;cursor:pointer;font-family:'DM Sans',sans-serif;transition:opacity .15s" onmouseover="this.style.opacity='.85'" onmouseout="this.style.opacity='1'">Próximas →</button>
+        </div>
+      </div>
+    </div>
+
+    <div id="tabExplorar" style="display:none">
+      <!-- Section 1: External platforms -->
+      <div style="margin-bottom:1.5rem">
+        <div style="font-size:11px;font-weight:500;text-transform:uppercase;letter-spacing:.08em;color:var(--muted2);margin-bottom:.75rem">🌐 Plataformas de busca</div>
+        <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:10px" id="explorePlatforms"></div>
+      </div>
+      <!-- Section 2: Verified remote companies -->
+      <div>
+        <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px;margin-bottom:.75rem">
+          <div style="font-size:11px;font-weight:500;text-transform:uppercase;letter-spacing:.08em;color:var(--muted2)">🏢 Empresas verificadas 100% remotas</div>
+          <div style="display:flex;gap:6px;flex-wrap:wrap" id="exploreFilters"></div>
+        </div>
+        <!-- Salary chips for Explorar -->
+        <div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:.75rem;align-items:center">
+          <span style="font-size:11px;color:var(--muted2);flex-shrink:0">💵 Salário est.:</span>
+          <button class="chip active" id="esal-0"      onclick="setExploreSalary(0,this)">Qualquer</button>
+          <button class="chip"        id="esal-60000"  onclick="setExploreSalary(60000,this)">$60k+</button>
+          <button class="chip"        id="esal-80000"  onclick="setExploreSalary(80000,this)">$80k+</button>
+          <button class="chip"        id="esal-100000" onclick="setExploreSalary(100000,this)">$100k+</button>
+          <button class="chip"        id="esal-130000" onclick="setExploreSalary(130000,this)">$130k+</button>
+        </div>
+        <div style="font-size:12px;color:var(--muted);margin-bottom:.75rem">Clique na empresa para ir direto à página de carreiras. Salário estimado baseado na mediana do mercado americano para cada área.</div>
+        <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:10px" id="exploreCompanies"></div>
+      </div>
+    </div>
+
+    <div id="tabSaved" style="display:none">
+      <div class="jobs-grid" id="savedGrid">
+        <div class="empty">Nenhuma vaga salva ainda.<br>Clique no ⭐ para salvar vagas.</div>
+      </div>
+    </div>
+
+    <div id="tabApplied" style="display:none">
+
+      <!-- Painel do candidato — métricas -->
+      <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:1.5rem" id="candidateDashKpis"></div>
+
+      <!-- Tabs internas do painel -->
+      <div style="display:flex;gap:4px;margin-bottom:1.25rem;border-bottom:0.5px solid var(--border)">
+        <button class="tab active" id="ctab-kanban"   onclick="switchCandidateTab('kanban',this)"   style="font-size:12px;padding:6px 10px">🗂️ Kanban</button>
+        <button class="tab"        id="ctab-timeline"  onclick="switchCandidateTab('timeline',this)"  style="font-size:12px;padding:6px 10px">📅 Timeline</button>
+        <button class="tab"        id="ctab-insights"  onclick="switchCandidateTab('insights',this)"  style="font-size:12px;padding:6px 10px">💡 Insights</button>
+        <button class="tab"        id="ctab-master"    onclick="switchCandidateTab('master',this)"    style="font-size:12px;padding:6px 10px">🏆 Master</button>
+      </div>
+
+      <!-- Kanban -->
+      <div id="ctab-content-kanban">
+        <div id="kanbanBoard" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(175px,1fr));gap:10px;align-items:start"></div>
+      </div>
+
+      <!-- Linha do tempo -->
+      <div id="ctab-content-timeline" style="display:none">
+        <div id="candidateTimeline" style="display:flex;flex-direction:column;gap:0"></div>
+      </div>
+
+      <!-- Insights IA -->
+      <div id="ctab-content-insights" style="display:none">
+        <div id="candidateInsights"></div>
+      </div>
+
+      <!-- PROGRAMA MASTER -->
+      <div id="ctab-content-master" style="display:none">
+        <div id="masterProgram"></div>
+      </div>
+
+    </div>
+  </main>
+
+  <!-- RIGHT SIDEBAR -->
+  <aside class="sidebar-right">
+
+    <!-- AI Coach -->
+    <div class="ai-coach">
+      <div class="coach-header">IA Coach de Carreira</div>
+      <div class="coach-sub">Ferramentas para conseguir sua vaga na gringa</div>
+      <div class="coach-items">
+        <div class="coach-item" onclick="showPaywall('junior')">
+          <div class="coach-icon">🗣️</div>
+          <div class="coach-info">
+            <div class="coach-title">Treinar inglês</div>
+            <div class="coach-desc">Chat IA simula entrevista com recruiter</div>
+          </div>
+          <span class="coach-badge badge-paid">Júnior+</span>
+        </div>
+        <div class="coach-item" onclick="jobAtual ? abrirFerramenta('coverLetter',null) : showToast('Abra uma vaga primeiro 👆')">
+          <div class="coach-icon">✉️</div>
+          <div class="coach-info">
+            <div class="coach-title">Cover letter em inglês</div>
+            <div class="coach-desc">IA escreve carta personalizada por vaga</div>
+          </div>
+          <span class="coach-badge badge-paid">Júnior+</span>
+        </div>
+        <div class="coach-item" onclick="jobAtual ? abrirFerramenta('otimizar',null) : showToast('Abra uma vaga primeiro 👆')">
+          <div class="coach-icon">📝</div>
+          <div class="coach-info">
+            <div class="coach-title">Otimizar currículo</div>
+            <div class="coach-desc">IA adapta seu CV para cada vaga</div>
+          </div>
+          <span class="coach-badge badge-paid">Pleno+</span>
+        </div>
+        <div class="coach-item" onclick="jobAtual ? abrirFerramenta('ats',null) : showToast('Abra uma vaga primeiro 👆')">
+          <div class="coach-icon">🎯</div>
+          <div class="coach-info">
+            <div class="coach-title">Scanner ATS</div>
+            <div class="coach-desc">Palavras-chave e score de compatibilidade</div>
+          </div>
+          <span class="coach-badge badge-paid">Pleno+</span>
+        </div>
+        <div class="coach-item" onclick="showPaywall('senior')">
+          <div class="coach-icon">📅</div>
+          <div class="coach-info">
+            <div class="coach-title">Mentoria semanal</div>
+            <div class="coach-desc">Aula ao vivo todo domingo</div>
+          </div>
+          <span class="coach-badge badge-paid">Sênior+</span>
+        </div>
+        <div class="coach-item" onclick="showPaywall('master')">
+          <div class="coach-icon">🤝</div>
+          <div class="coach-info">
+            <div class="coach-title">Mentoria individual</div>
+            <div class="coach-desc">1:1 com especialista em carreira global</div>
+          </div>
+          <span class="coach-badge badge-paid">Master</span>
+        </div>
+        <div class="coach-item" onclick="abrirSimulador()">
+          <div class="coach-icon">🎯</div>
+          <div class="coach-info">
+            <div class="coach-title">Simulador de testes</div>
+            <div class="coach-desc">Perguntas reais + gabarito + correção IA</div>
+          </div>
+          <span class="coach-badge badge-paid">Sênior+</span>
+        </div>
+        <div class="coach-item" onclick="abrirTesteIngles()">
+          <div class="coach-icon">🎤</div>
+          <div class="coach-info">
+            <div class="coach-title">Testar meu inglês</div>
+            <div class="coach-desc">IA avalia seu nível e dá feedback real</div>
+          </div>
+          <span class="coach-badge badge-paid">Júnior+</span>
+        </div>
+        <div class="coach-item" onclick="showModal('salaryModal')">
+          <div class="coach-icon">💵</div>
+          <div class="coach-info">
+            <div class="coach-title">Índice de salários EUA</div>
+            <div class="coach-desc">Quanto vale seu cargo no mercado americano</div>
+          </div>
+          <span class="coach-badge" style="background:rgba(74,222,128,.1);color:#4ade80;border:0.5px solid rgba(74,222,128,.3)">Grátis</span>
+        </div>
+        <div class="coach-item" onclick="showModal('legalModal')">
+          <div class="coach-icon">⚖️</div>
+          <div class="coach-info">
+            <div class="coach-title">Guia jurídico</div>
+            <div class="coach-desc">PJ, contractor, EOR — como funciona</div>
+          </div>
+          <span class="coach-badge" style="background:rgba(74,222,128,.1);color:#4ade80;border:0.5px solid rgba(74,222,128,.3)">Grátis</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Salary Index Widget -->
+    <div style="background:var(--surface);border:0.5px solid var(--border);border-radius:14px;padding:1.25rem;margin-bottom:1.25rem">
+      <div style="font-size:11px;font-weight:500;letter-spacing:.08em;text-transform:uppercase;color:var(--muted2);margin-bottom:.75rem">💵 Salários justos — mercado EUA 2025</div>
+      <div style="display:flex;flex-direction:column;gap:6px">
+        <div style="display:flex;justify-content:space-between;align-items:center;font-size:12px">
+          <span style="color:var(--muted)">Dev Júnior</span>
+          <span style="color:#4ade80;font-weight:500">$70k–$90k/ano</span>
+        </div>
+        <div style="display:flex;justify-content:space-between;align-items:center;font-size:12px">
+          <span style="color:var(--muted)">Dev Pleno</span>
+          <span style="color:#4ade80;font-weight:500">$100k–$130k/ano</span>
+        </div>
+        <div style="display:flex;justify-content:space-between;align-items:center;font-size:12px">
+          <span style="color:var(--muted)">Dev Sênior</span>
+          <span style="color:#4ade80;font-weight:500">$130k–$180k/ano</span>
+        </div>
+        <div style="display:flex;justify-content:space-between;align-items:center;font-size:12px">
+          <span style="color:var(--muted)">Remote (mediana)</span>
+          <span style="color:#4ade80;font-weight:500">$118k–$173k/ano</span>
+        </div>
+        <div style="border-top:0.5px solid var(--border);padding-top:8px;margin-top:2px">
+          <div style="font-size:11px;color:var(--muted2);line-height:1.5">Empresas que oferecem abaixo de <span style="color:#ef4444">$50k</span> para devs plenos estão pagando abaixo do mercado americano. Não aceite.</div>
+        </div>
+        <button onclick="showModal('salaryModal')" style="background:none;border:0.5px solid rgba(74,222,128,.3);border-radius:8px;padding:6px;color:#4ade80;font-size:11px;cursor:pointer;font-family:'DM Sans',sans-serif;margin-top:2px">Ver tabela completa por área →</button>
+      </div>
+    </div>
+
+    <!-- Trending Companies -->
+    <div class="section-label">Empresas em destaque</div>
+    <div class="trending-list" id="trendingList">
+      <div class="trending-item"><span class="trending-name">GitLab</span><span class="trending-count">12 vagas</span></div>
+      <div class="trending-item"><span class="trending-name">Automattic</span><span class="trending-count">8 vagas</span></div>
+      <div class="trending-item"><span class="trending-name">Shopify</span><span class="trending-count">15 vagas</span></div>
+      <div class="trending-item"><span class="trending-name">Basecamp</span><span class="trending-count">5 vagas</span></div>
+      <div class="trending-item"><span class="trending-name">Buffer</span><span class="trending-count">6 vagas</span></div>
+      <div class="trending-item"><span class="trending-name">Stripe</span><span class="trending-count">9 vagas</span></div>
+    </div>
+
+    <div style="margin-top:1.25rem">
+      <div class="section-label">Alertas de vagas</div>
+      <div style="background:var(--surface);border:0.5px solid var(--border);border-radius:12px;padding:1rem">
+        <div style="font-size:13px;color:var(--muted);margin-bottom:10px">Receba novas vagas por email</div>
+        <input class="form-input" type="email" placeholder="seu@email.com" id="alertEmail" style="margin-bottom:8px">
+        <button class="btn-full" style="margin-top:0" onclick="subscribeAlert()">Ativar alertas</button>
+      </div>
+    </div>
+  </aside>
+</div>
+</div><!-- /pageCandidates -->
+
+<!-- COMPANIES PAGE -->
+<div id="pageCompanies" style="display:none">
+<div style="max-width:1000px;margin:0 auto;padding:2.5rem 2rem">
+
+  <!-- Hero -->
+  <div style="text-align:center;padding:2rem 0 3rem;border-bottom:0.5px solid var(--border);margin-bottom:3rem">
+    <div style="display:inline-flex;align-items:center;gap:6px;background:var(--accent-dim);border:0.5px solid rgba(59,130,246,.25);border-radius:999px;padding:4px 14px;font-size:12px;color:var(--accent);margin-bottom:1.25rem">
+      <span style="width:6px;height:6px;border-radius:50%;background:var(--accent);display:inline-block"></span>
+      Lançamento · Oferta especial de fundadores
+    </div>
+    <h1 style="font-family:'Instrument Serif',serif;font-size:2.6rem;font-weight:400;line-height:1.15;margin-bottom:1rem">Contrate talentos brasileiros<br><em>para o mundo inteiro</em></h1>
+    <p style="font-size:16px;color:var(--muted);max-width:520px;margin:0 auto 2rem;line-height:1.7">O RemoteBR conecta sua empresa com os melhores profissionais do Brasil prontos para trabalhar remotamente. Publique vagas, crie testes de seleção e contrate mais rápido.</p>
+    <div style="display:flex;gap:10px;justify-content:center;flex-wrap:wrap">
+      <button class="btn-full" style="width:auto;padding:12px 28px" onclick="showSection('postJob')">Anunciar vaga agora →</button>
+      <button style="padding:12px 28px;border-radius:10px;background:transparent;color:var(--text);border:0.5px solid var(--border2);font-size:14px;font-weight:500;cursor:pointer;font-family:'DM Sans',sans-serif" onclick="showSection('plans')">Ver planos</button>
+    </div>
+  </div>
+
+  <!-- Stats -->
+  <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin-bottom:3rem">
+    <div style="background:var(--surface);border:0.5px solid var(--border);border-radius:var(--border-radius-lg);padding:1.5rem;text-align:center">
+      <div style="font-family:'Instrument Serif',serif;font-size:2rem;color:var(--accent);margin-bottom:4px">10k+</div>
+      <div style="font-size:13px;color:var(--muted)">Candidatos ativos na plataforma</div>
+    </div>
+    <div style="background:var(--surface);border:0.5px solid var(--border);border-radius:var(--border-radius-lg);padding:1.5rem;text-align:center">
+      <div style="font-family:'Instrument Serif',serif;font-size:2rem;color:var(--accent);margin-bottom:4px">48h</div>
+      <div style="font-size:13px;color:var(--muted)">Tempo médio para primeiros CVs</div>
+    </div>
+    <div style="background:var(--surface);border:0.5px solid var(--border);border-radius:var(--border-radius-lg);padding:1.5rem;text-align:center">
+      <div style="font-family:'Instrument Serif',serif;font-size:2rem;color:var(--accent);margin-bottom:4px">R$199</div>
+      <div style="font-size:13px;color:var(--muted)">Para anunciar — 10× mais barato</div>
+    </div>
+  </div>
+
+  <!-- Plans -->
+  <div id="sectionPlans">
+    <h2 style="font-family:'Instrument Serif',serif;font-size:1.6rem;font-weight:400;margin-bottom:.5rem">Planos para empresas</h2>
+    <p style="font-size:13px;color:var(--muted);margin-bottom:1.5rem">Preços de lançamento — garanta agora antes do reajuste.</p>
+    <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:3rem">
+
+      <!-- Starter -->
+      <div style="background:var(--surface);border:0.5px solid var(--border);border-radius:14px;padding:1.5rem;display:flex;flex-direction:column;gap:12px">
+        <div>
+          <div style="font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.08em;margin-bottom:6px">Starter</div>
+          <div style="font-family:'Instrument Serif',serif;font-size:2rem">R$199<span style="font-size:14px;color:var(--muted)">/vaga</span></div>
+          <div style="font-size:12px;color:var(--muted);margin-top:4px">Pagamento avulso</div>
+        </div>
+        <div style="display:flex;flex-direction:column;gap:8px;font-size:13px;color:var(--muted);flex:1">
+          <div>✓ 1 vaga ativa por 30 dias</div>
+          <div>✓ Acesso a todos os candidatos</div>
+          <div>✓ 1 teste de seleção simples</div>
+          <div>✓ Painel de candidaturas</div>
+        </div>
+        <button class="btn-full" style="margin-top:auto" onclick="showSection('postJob')">Publicar vaga →</button>
+      </div>
+
+      <!-- Growth (destaque) -->
+      <div style="background:var(--accent-dim);border:1.5px solid var(--accent);border-radius:14px;padding:1.5rem;display:flex;flex-direction:column;gap:12px;position:relative">
+        <div style="position:absolute;top:-12px;left:50%;transform:translateX(-50%);background:var(--accent);color:#fff;font-size:11px;font-weight:500;padding:3px 12px;border-radius:999px;white-space:nowrap">Mais popular</div>
+        <div>
+          <div style="font-size:11px;color:var(--accent);text-transform:uppercase;letter-spacing:.08em;margin-bottom:6px">Growth</div>
+          <div style="font-family:'Instrument Serif',serif;font-size:2rem;color:var(--accent)">R$599<span style="font-size:14px;color:var(--muted)">/mês</span></div>
+          <div style="font-size:12px;color:var(--muted);margin-top:4px">Vagas ilimitadas · cancele quando quiser</div>
+        </div>
+        <div style="display:flex;flex-direction:column;gap:8px;font-size:13px;color:var(--muted);flex:1">
+          <div>✓ Vagas ilimitadas</div>
+          <div>✓ Testes de seleção ilimitados</div>
+          <div>✓ Destaque no feed de candidatos</div>
+          <div>✓ Acesso ao banco de talentos completo</div>
+          <div>✓ Relatório de candidaturas</div>
+        </div>
+        <button class="btn-full" style="margin-top:auto" onclick="showSection('postJob')">Começar agora →</button>
+      </div>
+
+      <!-- Enterprise -->
+      <div style="background:var(--surface);border:0.5px solid var(--border);border-radius:14px;padding:1.5rem;display:flex;flex-direction:column;gap:12px">
+        <div>
+          <div style="font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.08em;margin-bottom:6px">Enterprise</div>
+          <div style="font-family:'Instrument Serif',serif;font-size:2rem">Custom</div>
+          <div style="font-size:12px;color:var(--muted);margin-top:4px">Para times de recrutamento</div>
+        </div>
+        <div style="display:flex;flex-direction:column;gap:8px;font-size:13px;color:var(--muted);flex:1">
+          <div>✓ Tudo do Growth</div>
+          <div>✓ ATS integrado</div>
+          <div>✓ Testes técnicos avançados com IA</div>
+          <div>✓ Suporte dedicado</div>
+          <div>✓ Integração via API</div>
+        </div>
+        <button style="width:100%;padding:11px;border-radius:10px;background:transparent;color:var(--text);border:0.5px solid var(--border2);font-size:14px;cursor:pointer;font-family:'DM Sans',sans-serif;margin-top:auto" onclick="showToast('Nossa equipe entrará em contato em breve! 📩')">Falar com time de vendas</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Post Job Form -->
+  <div id="sectionPostJob" style="display:none">
+    <div style="display:flex;align-items:center;gap:12px;margin-bottom:1.5rem">
+      <button onclick="showSection('plans')" style="background:none;border:0.5px solid var(--border2);border-radius:8px;padding:6px 12px;color:var(--muted);cursor:pointer;font-size:13px;font-family:'DM Sans',sans-serif">← Voltar</button>
+      <h2 style="font-family:'Instrument Serif',serif;font-size:1.6rem;font-weight:400">Publicar nova vaga</h2>
+    </div>
+
+    <div style="display:grid;grid-template-columns:1fr 380px;gap:20px;align-items:start">
+
+      <!-- Form -->
+      <div style="background:var(--surface);border:0.5px solid var(--border);border-radius:14px;padding:1.75rem;display:flex;flex-direction:column;gap:1rem">
+        <div style="font-size:13px;font-weight:500;color:var(--muted);text-transform:uppercase;letter-spacing:.08em;margin-bottom:.25rem">Informações da vaga</div>
+
+        <div class="form-row">
+          <div class="form-group" style="margin:0">
+            <label class="form-label">Cargo *</label>
+            <input class="form-input" id="jobTitle" placeholder="ex: Senior React Developer" oninput="updatePreview()">
+          </div>
+          <div class="form-group" style="margin:0">
+            <label class="form-label">Empresa *</label>
+            <input class="form-input" id="companyName" placeholder="Nome da empresa" oninput="updatePreview()">
+          </div>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group" style="margin:0">
+            <label class="form-label">Área</label>
+            <select class="form-input" id="jobArea" onchange="updatePreview()">
+              <option>Desenvolvimento de Software</option>
+              <option>Design / UX</option>
+              <option>Marketing Digital</option>
+              <option>Gestão de Produto</option>
+              <option>Dados / BI</option>
+              <option>Vendas / CS</option>
+              <option>RH</option>
+              <option>Finanças</option>
+              <option>Outra</option>
+            </select>
+          </div>
+          <div class="form-group" style="margin:0">
+            <label class="form-label">Tipo</label>
+            <select class="form-input" id="jobType" onchange="updatePreview()">
+              <option value="remote">100% Remoto</option>
+              <option value="hybrid">Híbrido</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group" style="margin:0">
+            <label class="form-label">Faixa salarial (USD/ano)</label>
+            <input class="form-input" id="jobSalary" placeholder="ex: $40,000 - $60,000" oninput="updatePreview()">
+          </div>
+          <div class="form-group" style="margin:0">
+            <label class="form-label">Países aceitos</label>
+            <input class="form-input" id="jobLocation" placeholder="ex: Brasil, LATAM, Worldwide" oninput="updatePreview()">
+          </div>
+        </div>
+
+        <div class="form-group" style="margin:0">
+          <label class="form-label">Descrição da vaga *</label>
+          <textarea class="form-input" id="jobDesc" rows="5" placeholder="Descreva as responsabilidades, requisitos e benefícios..." oninput="updatePreview()" style="resize:vertical"></textarea>
+        </div>
+
+        <div style="border-top:0.5px solid var(--border);padding-top:1rem;margin-top:.25rem">
+          <div style="font-size:13px;font-weight:500;color:var(--muted);text-transform:uppercase;letter-spacing:.08em;margin-bottom:1rem">Testes de seleção</div>
+
+          <div id="testList" style="display:flex;flex-direction:column;gap:8px;margin-bottom:10px"></div>
+
+          <button onclick="addTest()" style="width:100%;padding:10px;border-radius:10px;background:transparent;color:var(--accent);border:1px dashed rgba(59,130,246,.4);font-size:13px;cursor:pointer;font-family:'DM Sans',sans-serif;transition:all .15s" onmouseover="this.style.background='var(--accent-dim)'" onmouseout="this.style.background='transparent'">+ Adicionar pergunta / teste</button>
+        </div>
+
+        <button class="btn-full" onclick="publishJob()" style="margin-top:.5rem">Publicar vaga por R$199 →</button>
+      </div>
+
+      <!-- Preview -->
+      <div style="position:sticky;top:80px">
+        <div style="font-size:11px;color:var(--muted2);text-transform:uppercase;letter-spacing:.08em;margin-bottom:10px">Prévia do anúncio</div>
+        <div style="background:var(--surface);border:0.5px solid var(--border);border-radius:14px;padding:1.25rem" id="jobPreview">
+          <div style="display:flex;gap:12px;align-items:flex-start;margin-bottom:10px">
+            <div style="width:44px;height:44px;border-radius:10px;background:var(--surface2);border:0.5px solid var(--border);display:flex;align-items:center;justify-content:center;font-family:'Instrument Serif',serif;font-size:20px;color:var(--muted);flex-shrink:0" id="previewLogo">?</div>
+            <div>
+              <div style="font-family:'Instrument Serif',serif;font-size:16px;margin-bottom:2px" id="previewTitle">Título da vaga</div>
+              <div style="font-size:12px;color:var(--muted)" id="previewCompany">Nome da empresa</div>
+            </div>
+          </div>
+          <div style="display:flex;gap:5px;flex-wrap:wrap;margin-bottom:10px" id="previewTags">
+            <span style="font-size:11px;padding:3px 8px;border-radius:999px;color:#60a5fa;border:0.5px solid rgba(59,130,246,.25);background:rgba(59,130,246,.06)">🌍 Remoto</span>
+          </div>
+          <div style="font-size:12px;color:var(--muted);line-height:1.5" id="previewDesc">A descrição da vaga aparecerá aqui...</div>
+          <div style="margin-top:12px;padding-top:12px;border-top:0.5px solid var(--border);display:flex;justify-content:space-between;align-items:center">
+            <span style="font-size:11px;color:var(--muted2)">Publicada agora</span>
+            <span style="background:var(--accent);color:#fff;border-radius:8px;padding:6px 14px;font-size:12px;font-weight:500">Ver vaga ↗</span>
+          </div>
+        </div>
+
+        <div style="background:var(--surface);border:0.5px solid var(--border);border-radius:12px;padding:1rem;margin-top:12px">
+          <div style="font-size:12px;font-weight:500;margin-bottom:8px">Resumo do pedido</div>
+          <div style="display:flex;justify-content:space-between;font-size:13px;color:var(--muted);margin-bottom:6px">
+            <span>1 vaga · 30 dias</span><span>R$199,00</span>
+          </div>
+          <div style="display:flex;justify-content:space-between;font-size:13px;color:var(--muted);margin-bottom:10px;padding-bottom:10px;border-bottom:0.5px solid var(--border)">
+            <span>Testes de seleção</span><span style="color:var(--accent)">Grátis</span>
+          </div>
+          <div style="display:flex;justify-content:space-between;font-size:14px;font-weight:500">
+            <span>Total</span><span style="color:var(--accent)">R$199,00</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div>
+</div><!-- /pageCompanies -->
+
+<!-- COMPANY ATS PANEL -->
+<div id="pageCompanyATS" style="display:none">
+<div style="max-width:1100px;margin:0 auto;padding:2rem">
+
+  <!-- Nav dentro do painel empresa -->
+  <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:2rem;flex-wrap:wrap;gap:12px">
+    <div>
+      <div style="font-family:'Instrument Serif',serif;font-size:1.8rem;font-weight:400">Painel da Empresa</div>
+      <div style="font-size:13px;color:var(--muted)">Gerencie suas vagas e acompanhe candidatos</div>
+    </div>
+    <div style="display:flex;gap:8px">
+      <button class="nav-btn" onclick="showAtsSection('jobs',this)" id="ats-nav-jobs" style="color:var(--text);border-color:var(--accent)">Minhas vagas</button>
+      <button class="nav-btn" onclick="showAtsSection('pipeline',this)" id="ats-nav-pipeline">Pipeline</button>
+      <button class="nav-btn" onclick="showAtsSection('responses',this)" id="ats-nav-responses">Respostas automáticas</button>
+    </div>
+  </div>
+
+  <!-- SEÇÃO: VAGAS -->
+  <div id="ats-section-jobs">
+    <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:1.5rem" id="atsJobCards"></div>
+    <button onclick="showPage('companies')" style="background:var(--accent);border:none;border-radius:10px;padding:10px 20px;color:#fff;font-size:13px;font-weight:500;cursor:pointer;font-family:'DM Sans',sans-serif">+ Publicar nova vaga</button>
+  </div>
+
+  <!-- SEÇÃO: PIPELINE (funil por vaga) -->
+  <div id="ats-section-pipeline" style="display:none">
+    <div style="margin-bottom:1rem;display:flex;align-items:center;gap:10px">
+      <select id="atsPipelineSelect" onchange="renderPipeline(this.value)" style="background:var(--surface);border:0.5px solid var(--border2);border-radius:8px;padding:8px 12px;color:var(--text);font-size:13px;font-family:'DM Sans',sans-serif;outline:none">
+        <option value="">Selecione uma vaga...</option>
+      </select>
+    </div>
+    <div id="atsPipelineBoard"></div>
+  </div>
+
+  <!-- SEÇÃO: RESPOSTAS AUTOMÁTICAS -->
+  <div id="ats-section-responses" style="display:none">
+    <div style="display:flex;flex-direction:column;gap:12px" id="atsResponsesList"></div>
+  </div>
+
+</div>
+</div><!-- /pageCompanyATS -->
+
+<!-- ADMIN DASHBOARD -->
+<div id="pageAdmin" style="display:none">
+<div style="max-width:1100px;margin:0 auto;padding:2rem">
+
+  <div style="margin-bottom:2rem">
+    <div style="font-family:'Instrument Serif',serif;font-size:1.8rem;font-weight:400;margin-bottom:4px">Painel Admin — RemoteBR</div>
+    <div style="font-size:13px;color:var(--muted)">Métricas do produto em tempo real</div>
+  </div>
+
+  <!-- KPIs principais -->
+  <div id="adminTestUser"></div>
+  <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:2rem" id="adminKpis"></div>
+
+  <!-- Gráfico de fontes + funil de conversão -->
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:2rem">
+    <div style="background:var(--surface);border:0.5px solid var(--border);border-radius:14px;padding:1.5rem">
+      <div style="font-size:12px;font-weight:500;text-transform:uppercase;letter-spacing:.08em;color:var(--muted2);margin-bottom:1rem">Vagas por fonte</div>
+      <div id="adminSources"></div>
+    </div>
+    <div style="background:var(--surface);border:0.5px solid var(--border);border-radius:14px;padding:1.5rem">
+      <div style="font-size:12px;font-weight:500;text-transform:uppercase;letter-spacing:.08em;color:var(--muted2);margin-bottom:1rem">Funil de conversão</div>
+      <div id="adminFunnel"></div>
+    </div>
+  </div>
+
+  <!-- Tabelas: usuários e vagas mais vistas -->
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:2rem">
+    <div style="background:var(--surface);border:0.5px solid var(--border);border-radius:14px;padding:1.5rem">
+      <div style="font-size:12px;font-weight:500;text-transform:uppercase;letter-spacing:.08em;color:var(--muted2);margin-bottom:1rem">Planos ativos</div>
+      <div id="adminPlanos"></div>
+    </div>
+    <div style="background:var(--surface);border:0.5px solid var(--border);border-radius:14px;padding:1.5rem">
+      <div style="font-size:12px;font-weight:500;text-transform:uppercase;letter-spacing:.08em;color:var(--muted2);margin-bottom:1rem">Vagas mais acessadas hoje</div>
+      <div id="adminTopJobs"></div>
+    </div>
+  </div>
+
+  <!-- Receita estimada -->
+  <div style="background:var(--surface);border:0.5px solid var(--border);border-radius:14px;padding:1.5rem">
+    <div style="font-size:12px;font-weight:500;text-transform:uppercase;letter-spacing:.08em;color:var(--muted2);margin-bottom:1rem">Receita estimada mensal</div>
+    <div id="adminReceita"></div>
+  </div>
+
+</div>
+</div><!-- /pageAdmin -->
+
+<!-- PLANS LANDING PAGE -->
+<div id="pagePlanos" style="display:none">
+<div style="max-width:1000px;margin:0 auto;padding:1.5rem 1rem 4rem" id="planosContainer">
+
+  <!-- Hero -->
+  <div style="text-align:center;padding:2rem 0 3rem">
+    <div style="display:inline-flex;align-items:center;gap:6px;background:var(--accent-dim);border:0.5px solid rgba(59,130,246,.25);border-radius:999px;padding:4px 16px;font-size:12px;color:var(--accent);margin-bottom:1.25rem">
+      <span style="width:6px;height:6px;border-radius:50%;background:var(--accent);display:inline-block;animation:pulse 2s infinite"></span>
+      Vagas remotas internacionais · Em português · Com IA
+    </div>
+    <h1 style="font-family:'Instrument Serif',serif;font-size:clamp(1.6rem,5vw,2.8rem);font-weight:400;line-height:1.15;margin-bottom:1rem">Sua carreira internacional começa aqui</h1>
+    <p style="font-size:16px;color:var(--muted);max-width:560px;margin:0 auto 2rem;line-height:1.7">O RemoteBR encontra as melhores vagas remotas do mundo, otimiza seu currículo, treina seu inglês e garante que você receba retorno de cada candidatura.</p>
+
+    <!-- Social proof -->
+    <div style="display:flex;align-items:center;justify-content:center;gap:16px;flex-wrap:wrap;margin-bottom:2rem">
+      <div style="text-align:center">
+        <div style="font-family:'Instrument Serif',serif;font-size:1.8rem;color:var(--accent)">8+</div>
+        <div style="font-size:12px;color:var(--muted)">fontes de vagas</div>
+      </div>
+      <div style="width:1px;height:40px;background:var(--border)"></div>
+      <div style="text-align:center">
+        <div style="font-family:'Instrument Serif',serif;font-size:1.8rem;color:var(--accent)">100%</div>
+        <div style="font-size:12px;color:var(--muted)">em português</div>
+      </div>
+      <div style="width:1px;height:40px;background:var(--border)"></div>
+      <div style="text-align:center">
+        <div style="font-family:'Instrument Serif',serif;font-size:1.8rem;color:var(--accent)">R$0</div>
+        <div style="font-size:12px;color:var(--muted)">para começar</div>
+      </div>
+      <div style="width:1px;height:40px;background:var(--border)"></div>
+      <div style="text-align:center">
+        <div style="font-family:'Instrument Serif',serif;font-size:1.8rem;color:var(--accent)">48h</div>
+        <div style="font-size:12px;color:var(--muted)">retorno garantido</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Plans grid -->
+  <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:10px;margin-bottom:3rem;align-items:start" id="planosGrid">
+
+    <!-- Grátis -->
+    <div style="background:var(--surface);border:0.5px solid var(--border);border-radius:16px;padding:1.5rem;display:flex;flex-direction:column;gap:10px">
+      <div>
+        <div style="font-size:12px;color:var(--muted);text-transform:uppercase;letter-spacing:.08em;margin-bottom:6px">Grátis</div>
+        <div style="font-family:'Instrument Serif',serif;font-size:2rem;color:var(--text)">R$0</div>
+        <div style="font-size:12px;color:var(--muted);margin-top:2px">para sempre</div>
+      </div>
+      <div style="border-top:0.5px solid var(--border);padding-top:10px;display:flex;flex-direction:column;gap:7px;font-size:12px;color:var(--muted);flex:1">
+        <div>✓ Feed de vagas internacionais</div>
+        <div>✓ 8 fontes simultâneas</div>
+        <div>✓ Filtros por salário e área</div>
+        <div>✓ Análise IA básica por vaga</div>
+        <div>✓ Tradução para português</div>
+        <div>✓ Índice de salários EUA</div>
+        <div>✓ Guia jurídico completo</div>
+        <div style="opacity:.4">✗ Scanner ATS</div>
+        <div style="opacity:.4">✗ Cover letter</div>
+        <div style="opacity:.4">✗ Treino de inglês</div>
+      </div>
+      <button onclick="showPage('candidates')" style="width:100%;padding:10px;border-radius:10px;background:transparent;color:var(--text);border:0.5px solid var(--border2);font-size:13px;cursor:pointer;font-family:'DM Sans',sans-serif;transition:all .2s;margin-top:auto" onmouseover="this.style.borderColor='var(--accent)';this.style.color='var(--accent)'" onmouseout="this.style.borderColor='var(--border2)';this.style.color='var(--text)'">
+        Começar grátis →
+      </button>
+    </div>
+
+    <!-- Júnior -->
+    <div style="background:var(--surface);border:0.5px solid #85B7EB;border-radius:16px;padding:1.5rem;display:flex;flex-direction:column;gap:10px">
+      <div>
+        <div style="font-size:12px;color:#60a5fa;text-transform:uppercase;letter-spacing:.08em;margin-bottom:6px">Júnior</div>
+        <div style="font-family:'Instrument Serif',serif;font-size:2rem;color:var(--text)">R$29<span style="font-size:1rem;color:var(--muted)">,90/mês</span></div>
+        <div style="font-size:12px;color:var(--muted);margin-top:2px">ideal para quem está começando</div>
+      </div>
+      <div style="border-top:0.5px solid var(--border);padding-top:10px;display:flex;flex-direction:column;gap:7px;font-size:12px;color:var(--muted);flex:1">
+        <div style="color:var(--text);font-weight:500;font-size:11px">Tudo do Grátis, mais:</div>
+        <div style="color:#60a5fa">✓ <b style="color:var(--text)">Scanner ATS</b> — palavras-chave faltando</div>
+        <div style="color:#60a5fa">✓ <b style="color:var(--text)">Cover letter em inglês</b> por vaga</div>
+        <div style="color:#60a5fa">✓ <b style="color:var(--text)">Simulador de inglês</b> com gabarito fixo</div>
+        <div style="color:#60a5fa">✓ <b style="color:var(--text)">Feedback em 48h</b> sem retorno</div>
+        <div style="color:#60a5fa">✓ Kanban de candidaturas</div>
+        <div style="color:#60a5fa">✓ Linha do tempo de processos</div>
+        <div style="opacity:.4">✗ Otimização de CV por IA</div>
+        <div style="opacity:.4">✗ Chat de inglês com IA</div>
+        <div style="opacity:.4">✗ Simulador de testes técnicos</div>
+      </div>
+      <a href="#" onclick="event.preventDefault();abrirStripe('junior')" target="_blank" style="width:100%;padding:10px;border-radius:10px;background:#1d4ed8;color:#fff;border:none;font-size:13px;cursor:pointer;font-family:'DM Sans',sans-serif;text-align:center;text-decoration:none;display:block;box-sizing:border-box;transition:opacity .2s;margin-top:auto" onmouseover="this.style.opacity='.85'" onmouseout="this.style.opacity='1'">
+        Assinar Júnior →
+      </a>
+      <div style="text-align:center;font-size:11px;color:var(--muted2)">Cancele quando quiser</div>
+    </div>
+
+    <!-- Pleno — destaque -->
+    <div style="background:var(--accent-dim);border:2px solid var(--accent);border-radius:16px;padding:1.5rem;display:flex;flex-direction:column;gap:10px;position:relative">
+      <div style="position:absolute;top:-13px;left:50%;transform:translateX(-50%);background:var(--accent);color:#fff;font-size:11px;font-weight:500;padding:3px 14px;border-radius:999px;white-space:nowrap">⭐ Mais popular</div>
+      <div>
+        <div style="font-size:12px;color:var(--accent);text-transform:uppercase;letter-spacing:.08em;margin-bottom:6px">Pleno</div>
+        <div style="font-family:'Instrument Serif',serif;font-size:2rem;color:var(--text)">R$59<span style="font-size:1rem;color:var(--muted)">,90/mês</span></div>
+        <div style="font-size:12px;color:var(--muted);margin-top:2px">para quem quer acelerar</div>
+      </div>
+      <div style="border-top:0.5px solid rgba(59,130,246,.2);padding-top:10px;display:flex;flex-direction:column;gap:7px;font-size:12px;color:var(--muted);flex:1">
+        <div style="color:var(--text);font-weight:500;font-size:11px">Tudo do Júnior, mais:</div>
+        <div style="color:var(--accent)">✓ <b style="color:var(--text)">Otimização de CV por IA</b> para cada vaga</div>
+        <div style="color:var(--accent)">✓ <b style="color:var(--text)">Chat de inglês com IA</b> — 20 perguntas + 20 respostas/mês</div>
+        <div style="color:var(--accent)">✓ Correção da sua resposta em inglês pela IA</div>
+        <div style="color:var(--accent)">✓ Frases reais de entrevistas americanas</div>
+        <div style="color:var(--accent)">✓ Insights de padrão de candidaturas</div>
+        <div style="opacity:.4">✗ Simulador de testes técnicos</div>
+        <div style="opacity:.4">✗ Mentoria semanal</div>
+      </div>
+      <a href="#" onclick="event.preventDefault();abrirStripe('pleno')" target="_blank" style="width:100%;padding:11px;border-radius:10px;background:var(--accent);color:#fff;border:none;font-size:13px;font-weight:500;cursor:pointer;font-family:'DM Sans',sans-serif;text-align:center;text-decoration:none;display:block;box-sizing:border-box;transition:opacity .2s;margin-top:auto" onmouseover="this.style.opacity='.85'" onmouseout="this.style.opacity='1'">
+        Assinar Pleno →
+      </a>
+      <div style="text-align:center;font-size:11px;color:var(--muted2)">Cancele quando quiser</div>
+    </div>
+
+    <!-- Sênior -->
+    <div style="background:var(--surface);border:0.5px solid #EF9F27;border-radius:16px;padding:1.5rem;display:flex;flex-direction:column;gap:10px">
+      <div>
+        <div style="font-size:12px;color:#f59e0b;text-transform:uppercase;letter-spacing:.08em;margin-bottom:6px">Sênior</div>
+        <div style="font-family:'Instrument Serif',serif;font-size:2rem;color:var(--text)">R$79<span style="font-size:1rem;color:var(--muted)">,90/mês</span></div>
+        <div style="font-size:12px;color:var(--muted);margin-top:2px">para se preparar de verdade</div>
+      </div>
+      <div style="border-top:0.5px solid var(--border);padding-top:10px;display:flex;flex-direction:column;gap:7px;font-size:12px;color:var(--muted);flex:1">
+        <div style="color:var(--text);font-weight:500;font-size:11px">Tudo do Pleno, mais:</div>
+        <div style="color:#f59e0b">✓ <b style="color:var(--text)">Simulador de testes técnicos</b> por área</div>
+        <div style="color:#f59e0b">✓ <b style="color:var(--text)">Correção pontual pela IA</b> — onde errou e como melhorar</div>
+        <div style="color:#f59e0b">✓ Dev, PM, Dados, CS, Marketing</div>
+        <div style="color:#f59e0b">✓ <b style="color:var(--text)">Mentoria semanal ao vivo</b></div>
+        <div style="color:#f59e0b">✓ Acesso à comunidade privada</div>
+        <div style="opacity:.4">✗ Mentoria individual 1:1</div>
+        <div style="opacity:.4">✗ Chat de inglês ilimitado</div>
+      </div>
+      <a href="#" onclick="event.preventDefault();abrirStripe('senior')" target="_blank" style="width:100%;padding:10px;border-radius:10px;background:#b45309;color:#fff;border:none;font-size:13px;cursor:pointer;font-family:'DM Sans',sans-serif;text-align:center;text-decoration:none;display:block;box-sizing:border-box;transition:opacity .2s;margin-top:auto" onmouseover="this.style.opacity='.85'" onmouseout="this.style.opacity='1'">
+        Assinar Sênior →
+      </a>
+      <div style="text-align:center;font-size:11px;color:var(--muted2)">Cancele quando quiser</div>
+    </div>
+
+    <!-- Master -->
+    <div style="background:var(--surface);border:0.5px solid #AFA9EC;border-radius:16px;padding:1.5rem;display:flex;flex-direction:column;gap:10px">
+      <div>
+        <div style="font-size:12px;color:#a78bfa;text-transform:uppercase;letter-spacing:.08em;margin-bottom:6px">Master</div>
+        <div style="font-family:'Instrument Serif',serif;font-size:2rem;color:var(--text)">R$99<span style="font-size:1rem;color:var(--muted)">,90/mês</span></div>
+        <div style="font-size:12px;color:var(--muted);margin-top:2px">para resultado garantido</div>
+      </div>
+      <div style="border-top:0.5px solid var(--border);padding-top:10px;display:flex;flex-direction:column;gap:7px;font-size:12px;color:var(--muted);flex:1">
+        <div style="color:var(--text);font-weight:500;font-size:11px">Tudo do Sênior, mais:</div>
+        <div style="color:#a78bfa">✓ <b style="color:var(--text)">Chat de inglês ilimitado</b> com IA</div>
+        <div style="color:#a78bfa">✓ <b style="color:var(--text)">Mensagem ao recrutador</b> gerada por IA após cada candidatura</div>
+        <div style="color:#a78bfa">✓ <b style="color:var(--text)">Mentoria individual 1:1</b></div>
+        <div style="color:#a78bfa">✓ Revisão de CV por especialista humano</div>
+        <div style="color:#a78bfa">✓ Simulação completa de entrevista</div>
+        <div style="color:#a78bfa">✓ Suporte prioritário</div>
+        <div style="color:#a78bfa">✓ Acesso a todas as features futuras</div>
+      </div>
+      <a href="#" onclick="event.preventDefault();abrirStripe('master')" target="_blank" style="width:100%;padding:10px;border-radius:10px;background:#6d28d9;color:#fff;border:none;font-size:13px;cursor:pointer;font-family:'DM Sans',sans-serif;text-align:center;text-decoration:none;display:block;box-sizing:border-box;transition:opacity .2s;margin-top:auto" onmouseover="this.style.opacity='.85'" onmouseout="this.style.opacity='1'">
+        Assinar Master →
+      </a>
+      <div style="text-align:center;font-size:11px;color:var(--muted2)">Cancele quando quiser</div>
+    </div>
+
+  </div>
+
+  <!-- Garantia + confiança -->
+  <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:16px;margin-bottom:3rem">
+    <div style="text-align:center;padding:1.5rem;background:var(--surface);border:0.5px solid var(--border);border-radius:14px">
+      <div style="font-size:28px;margin-bottom:8px">🔒</div>
+      <div style="font-size:13px;font-weight:500;margin-bottom:4px">Pagamento seguro</div>
+      <div style="font-size:12px;color:var(--muted);line-height:1.5">Processado pelo Stripe — o mesmo sistema usado por Amazon, Google e Spotify</div>
+    </div>
+    <div style="text-align:center;padding:1.5rem;background:var(--surface);border:0.5px solid var(--border);border-radius:14px">
+      <div style="font-size:28px;margin-bottom:8px">↩️</div>
+      <div style="font-size:13px;font-weight:500;margin-bottom:4px">Cancele quando quiser</div>
+      <div style="font-size:12px;color:var(--muted);line-height:1.5">Sem fidelidade, sem multa. Cancele em 1 clique a qualquer momento pelo painel</div>
+    </div>
+    <div style="text-align:center;padding:1.5rem;background:var(--surface);border:0.5px solid var(--border);border-radius:14px">
+      <div style="font-size:28px;margin-bottom:8px">🇧🇷</div>
+      <div style="font-size:13px;font-weight:500;margin-bottom:4px">Feito para brasileiros</div>
+      <div style="font-size:12px;color:var(--muted);line-height:1.5">O único produto focado em brasileiros buscando vagas internacionais remotas</div>
+    </div>
+  </div>
+
+  <!-- FAQ -->
+  <div style="max-width:680px;margin:0 auto">
+    <h2 style="font-family:'Instrument Serif',serif;font-size:1.6rem;font-weight:400;text-align:center;margin-bottom:1.5rem">Perguntas frequentes</h2>
+    <div id="faqList" style="display:flex;flex-direction:column;gap:8px"></div>
+  </div>
+
+  <!-- CTA final -->
+  <div style="text-align:center;margin-top:3rem;padding:2.5rem;background:var(--accent-dim);border:0.5px solid rgba(59,130,246,.2);border-radius:20px">
+    <h2 style="font-family:'Instrument Serif',serif;font-size:1.8rem;font-weight:400;margin-bottom:8px">Pronto para trabalhar na gringa?</h2>
+    <p style="font-size:14px;color:var(--muted);margin-bottom:1.5rem">Comece grátis hoje. Sem cartão de crédito.</p>
+    <button onclick="showPage('candidates')" style="background:var(--accent);border:none;border-radius:12px;padding:14px 36px;color:#fff;font-size:15px;font-weight:500;cursor:pointer;font-family:'DM Sans',sans-serif;transition:opacity .2s" onmouseover="this.style.opacity='.85'" onmouseout="this.style.opacity='1'">
+      Explorar vagas gratuitamente →
+    </button>
+    <div style="font-size:12px;color:var(--muted2);margin-top:10px">Mais de 120 vagas remotas internacionais atualizadas diariamente</div>
+  </div>
+
+</div>
+</div><!-- /pagePlanos -->
+
+<!-- CONTACT PAGE -->
+<div id="pageContato" style="display:none">
+<div style="max-width:680px;margin:0 auto;padding:3rem 1.5rem 4rem">
+
+  <div style="margin-bottom:2.5rem">
+    <div style="font-family:'Instrument Serif',serif;font-size:2rem;font-weight:400;margin-bottom:6px">Fale com a gente</div>
+    <div style="font-size:14px;color:var(--muted)">Respondemos em até 24 horas nos dias úteis.</div>
+  </div>
+
+  <!-- Contact options -->
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:2.5rem">
+    <a id="contatoEmailLink" href="mailto:remot3br@gmail.com" style="display:flex;align-items:center;gap:14px;background:var(--surface);border:0.5px solid var(--border);border-radius:14px;padding:1.25rem;text-decoration:none;transition:border-color .15s" onmouseover="this.style.borderColor='var(--accent)'" onmouseout="this.style.borderColor='var(--border)'">
+      <div style="width:44px;height:44px;border-radius:12px;background:var(--accent-dim);border:0.5px solid rgba(59,130,246,.2);display:flex;align-items:center;justify-content:center;font-size:20px;flex-shrink:0">📧</div>
+      <div>
+        <div style="font-size:14px;font-weight:500;color:var(--text);margin-bottom:3px">Email</div>
+        <div style="font-size:12px;color:var(--muted)" id="contatoEmailText">remot3br@gmail.com</div>
+      </div>
+    </a>
+    <a href="https://linkedin.com/company/remotebr" target="_blank" style="display:flex;align-items:center;gap:14px;background:var(--surface);border:0.5px solid var(--border);border-radius:14px;padding:1.25rem;text-decoration:none;transition:border-color .15s" onmouseover="this.style.borderColor='#0a66c2'" onmouseout="this.style.borderColor='var(--border)'">
+      <div style="width:44px;height:44px;border-radius:12px;background:rgba(10,102,194,.1);border:0.5px solid rgba(10,102,194,.2);display:flex;align-items:center;justify-content:center;font-size:20px;flex-shrink:0">💼</div>
+      <div>
+        <div style="font-size:14px;font-weight:500;color:var(--text);margin-bottom:3px">LinkedIn</div>
+        <div style="font-size:12px;color:var(--muted)">@remotebr</div>
+      </div>
+    </a>
+  </div>
+
+  <!-- Contact form -->
+  <div style="background:var(--surface);border:0.5px solid var(--border);border-radius:16px;padding:1.75rem">
+    <div style="font-size:15px;font-weight:500;margin-bottom:1.25rem">Enviar mensagem</div>
+
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:12px">
+      <div>
+        <label style="font-size:12px;color:var(--muted);display:block;margin-bottom:5px">Nome</label>
+        <input class="form-input" type="text" id="contatoNome" placeholder="Seu nome">
+      </div>
+      <div>
+        <label style="font-size:12px;color:var(--muted);display:block;margin-bottom:5px">Email</label>
+        <input class="form-input" type="email" id="contatoEmail" placeholder="seu@email.com">
+      </div>
+    </div>
+
+    <div style="margin-bottom:12px">
+      <label style="font-size:12px;color:var(--muted);display:block;margin-bottom:5px">Assunto</label>
+      <select class="form-input" id="contatoAssunto" style="cursor:pointer">
+        <option value="">Selecione um assunto...</option>
+        <option value="duvida_plano">Dúvida sobre planos e preços</option>
+        <option value="suporte_tecnico">Suporte técnico</option>
+        <option value="cancelamento">Cancelamento de assinatura</option>
+        <option value="empresa_anunciar">Quero anunciar vagas (empresa)</option>
+        <option value="parceria">Parceria / afiliados</option>
+        <option value="imprensa">Imprensa</option>
+        <option value="outro">Outro assunto</option>
+      </select>
+    </div>
+
+    <div style="margin-bottom:1.25rem">
+      <label style="font-size:12px;color:var(--muted);display:block;margin-bottom:5px">Mensagem</label>
+      <textarea class="form-input" id="contatoMsg" rows="5" placeholder="Descreva sua dúvida ou mensagem..." style="resize:vertical;min-height:100px"></textarea>
+    </div>
+
+    <button onclick="enviarContato()" class="btn-full">Enviar mensagem →</button>
+    <div id="contatoFeedback" style="display:none;margin-top:10px;text-align:center;font-size:13px;color:#4ade80">
+      ✓ Mensagem enviada! Respondemos em até 24 horas.
+    </div>
+  </div>
+
+  <!-- FAQ quick links -->
+  <div style="margin-top:2rem;padding:1.25rem;background:var(--surface2);border:0.5px solid var(--border);border-radius:12px">
+    <div style="font-size:13px;font-weight:500;margin-bottom:8px">Antes de enviar, veja se sua dúvida já está respondida:</div>
+    <div style="display:flex;flex-direction:column;gap:6px">
+      <span onclick="showPage('planos')" style="font-size:13px;color:var(--accent);cursor:pointer">→ Como funcionam os planos e o que cada um inclui</span>
+      <span onclick="showPage('planos')" style="font-size:13px;color:var(--accent);cursor:pointer">→ Como cancelar minha assinatura</span>
+      <span onclick="showModal('legalModal')" style="font-size:13px;color:var(--accent);cursor:pointer">→ Como funciona o contrato de trabalho internacional</span>
+      <span onclick="showModal('salaryModal')" style="font-size:13px;color:var(--accent);cursor:pointer">→ Quanto ganham profissionais brasileiros em empresas americanas</span>
+    </div>
+  </div>
+
+</div>
+</div><!-- /pageContato -->
+
+<!-- ADMIN PASSWORD MODAL -->
+<div class="modal-overlay" id="adminPwModal">
+  <div class="modal" style="max-width:360px;text-align:center">
+    <div style="font-size:32px;margin-bottom:12px">🔐</div>
+    <div class="modal-title">Acesso restrito</div>
+    <div class="modal-sub">Digite a senha de administrador para continuar.</div>
+    <input class="form-input" type="password" id="adminPwInput" placeholder="Senha" onkeydown="if(event.key==='Enter')verificarSenhaAdmin()" style="margin-bottom:12px;text-align:center;letter-spacing:.2em">
+    <div id="adminPwErro" style="display:none;font-size:12px;color:#ef4444;margin-bottom:10px">Senha incorreta. Tente novamente.</div>
+    <button onclick="verificarSenhaAdmin()" class="btn-full">Entrar</button>
+    <button onclick="closeModal('adminPwModal')" style="margin-top:8px;background:none;border:none;color:var(--muted);font-size:12px;cursor:pointer;font-family:'DM Sans',sans-serif">Cancelar</button>
+  </div>
+</div>
+
+<!-- MODAL USUÁRIO DE TESTE -->
+<div class="modal-overlay" id="testeModal">
+  <div class="modal" style="max-width:380px;text-align:center">
+    <button class="modal-close" onclick="closeModal('testeModal')">×</button>
+    <div style="font-size:40px;margin-bottom:12px">🧪</div>
+    <div class="modal-title">Acesso de teste</div>
+    <div class="modal-sub">Digite a senha de teste para experimentar todas as funcionalidades do plano Master.</div>
+    <input class="form-input" type="password" id="testePwInput" placeholder="Senha de teste" onkeydown="if(event.key==='Enter')verificarSenhaTeste()" style="margin-bottom:12px;text-align:center;letter-spacing:.2em">
+    <div id="testePwErro" style="display:none;font-size:12px;color:#ef4444;margin-bottom:10px">Senha incorreta. Tente novamente.</div>
+    <button onclick="verificarSenhaTeste()" class="btn-full" style="background:#6d28d9">Ativar modo teste →</button>
+    <div style="font-size:11px;color:var(--muted);margin-top:10px">Modo de demonstração — sem dados reais</div>
+  </div>
+</div>
+
+<!-- BLOG PAGE -->
+<div id="pageBlog" style="display:none">
+<div style="max-width:900px;margin:0 auto;padding:2rem 1.5rem 4rem">
+
+  <!-- Blog header -->
+  <div style="margin-bottom:2.5rem">
+    <div style="font-family:'Instrument Serif',serif;font-size:2rem;font-weight:400;margin-bottom:6px">Blog RemoteBR</div>
+    <div style="font-size:14px;color:var(--muted)">Tudo que você precisa saber para trabalhar na gringa — em português.</div>
+  </div>
+
+  <!-- Category filter -->
+  <div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:2rem" id="blogCatFilter">
+    <button class="chip active" onclick="filterBlog('',this)">Todos</button>
+    <button class="chip" onclick="filterBlog('salario',this)">💵 Salário</button>
+    <button class="chip" onclick="filterBlog('juridico',this)">⚖️ Jurídico</button>
+    <button class="chip" onclick="filterBlog('entrevista',this)">🎙️ Entrevista</button>
+    <button class="chip" onclick="filterBlog('curriculo',this)">📝 Currículo</button>
+    <button class="chip" onclick="filterBlog('cultura',this)">🌍 Cultura</button>
+    <button class="chip" onclick="filterBlog('dinheiro',this)">🏦 Receber dólar</button>
+  </div>
+
+  <!-- Articles grid -->
+  <div id="blogGrid" style="display:flex;flex-direction:column;gap:0"></div>
+
+  <!-- Article view (full post) -->
+  <div id="blogPost" style="display:none">
+    <button onclick="fecharPost()" style="display:flex;align-items:center;gap:6px;background:none;border:none;color:var(--muted);cursor:pointer;font-size:13px;font-family:'DM Sans',sans-serif;margin-bottom:1.5rem;padding:0">
+      ← Voltar para o blog
+    </button>
+    <div id="blogPostContent"></div>
+  </div>
+
+</div>
+</div><!-- /pageBlog -->
+
+<!-- ENGLISH CHAT MODAL -->
+<div class="modal-overlay" id="englishModal">
+  <div class="modal">
+    <button class="modal-close" onclick="closeModal('englishModal')">×</button>
+    <div class="modal-title">Treinar inglês com IA 🗣️</div>
+    <div class="modal-sub">Simule uma entrevista em inglês. A IA faz perguntas como um recruiter americano e dá feedback em português.</div>
+    <div class="chat-window">
+      <div class="chat-messages" id="chatMessages">
+        <div class="chat-msg ai">Hi! I'm your interview coach. I'll ask you questions like a real US recruiter would. Let's start with a classic one: <strong>Tell me about yourself.</strong> 😊</div>
+      </div>
+      <div class="chat-input-row">
+        <input class="chat-input" id="chatInput" type="text" placeholder="Responda em inglês..." onkeydown="if(event.key==='Enter')sendChat()">
+        <button class="chat-send" onclick="sendChat()">→</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- SIGNUP MODAL -->
+<!-- AUTH MODAL — único modal para login e cadastro -->
+<div class="modal-overlay" id="signupModal">
+  <div class="modal" style="max-width:420px">
+    <button class="modal-close" onclick="closeModal('signupModal')">×</button>
+    <div style="text-align:center;margin-bottom:1.5rem">
+      <div class="modal-title" style="margin-bottom:4px">Entrar no RemoteBR</div>
+      <div class="modal-sub">Vagas internacionais + IA para sua carreira global</div>
+    </div>
+
+    <!-- Google OAuth — menor fricção possível -->
+    <button onclick="loginGoogle()" style="width:100%;display:flex;align-items:center;justify-content:center;gap:10px;padding:12px;border-radius:10px;background:var(--surface2);border:0.5px solid var(--border2);color:var(--text);font-size:14px;font-weight:500;cursor:pointer;font-family:'DM Sans',sans-serif;transition:all .2s;margin-bottom:10px" onmouseover="this.style.borderColor='var(--accent)'" onmouseout="this.style.borderColor='var(--border2)'">
+      <svg width="18" height="18" viewBox="0 0 48 48"><path fill="#EA4335" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z"/><path fill="#4285F4" d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z"/><path fill="#FBBC05" d="M10.53 28.59c-.48-1.45-.76-2.99-.76-4.59s.27-3.14.76-4.59l-7.98-6.19C.92 16.46 0 20.12 0 24c0 3.88.92 7.54 2.56 10.78l7.97-6.19z"/><path fill="#34A853" d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.18 1.48-4.97 2.34-8.16 2.34-6.26 0-11.57-4.22-13.47-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z"/></svg>
+      Continuar com Google
+    </button>
+
+    <div style="display:flex;align-items:center;gap:10px;margin:10px 0">
+      <div style="flex:1;height:0.5px;background:var(--border)"></div>
+      <span style="font-size:11px;color:var(--muted2)">ou</span>
+      <div style="flex:1;height:0.5px;background:var(--border)"></div>
+    </div>
+
+    <!-- Magic link — sem senha -->
+    <div id="authEmailStep">
+      <div class="form-group" style="margin-bottom:10px">
+        <input class="form-input" type="email" id="authEmail" placeholder="seu@email.com" onkeydown="if(event.key==='Enter')enviarMagicLink()">
+      </div>
+      <button class="btn-full" onclick="enviarMagicLink()" style="margin-top:0">Entrar com link mágico →</button>
+      <div style="text-align:center;font-size:11px;color:var(--muted2);margin-top:8px">Sem senha — enviamos um link direto para seu email</div>
+    </div>
+
+    <div id="authMagicSent" style="display:none;text-align:center;padding:1rem 0">
+      <div style="font-size:32px;margin-bottom:10px">📧</div>
+      <div style="font-size:14px;font-weight:500;margin-bottom:6px">Link enviado!</div>
+      <div style="font-size:12px;color:var(--muted)">Verifique sua caixa de entrada e clique no link para entrar. O link expira em 1 hora.</div>
+    </div>
+
+    <div style="margin-top:14px;padding-top:12px;border-top:0.5px solid var(--border);text-align:center;font-size:11px;color:var(--muted2);line-height:1.5">
+      Ao continuar você concorda com os <a href="#" style="color:var(--accent)">Termos de Uso</a> e <a href="#" style="color:var(--accent)">Política de Privacidade</a> · LGPD compliant
+    </div>
+  </div>
+</div>
+
+<!-- LOGIN MODAL — redireciona para o único modal -->
+<div class="modal-overlay" id="loginModal">
+  <div class="modal" style="max-width:420px">
+    <button class="modal-close" onclick="closeModal('loginModal')">×</button>
+    <div style="text-align:center;margin-bottom:1.5rem">
+      <div class="modal-title" style="margin-bottom:4px">Bem-vindo de volta</div>
+      <div class="modal-sub">Entre na sua conta RemoteBR</div>
+    </div>
+    <button onclick="loginGoogle()" style="width:100%;display:flex;align-items:center;justify-content:center;gap:10px;padding:12px;border-radius:10px;background:var(--surface2);border:0.5px solid var(--border2);color:var(--text);font-size:14px;font-weight:500;cursor:pointer;font-family:'DM Sans',sans-serif;transition:all .2s;margin-bottom:10px" onmouseover="this.style.borderColor='var(--accent)'" onmouseout="this.style.borderColor='var(--border2)'">
+      <svg width="18" height="18" viewBox="0 0 48 48"><path fill="#EA4335" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z"/><path fill="#4285F4" d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z"/><path fill="#FBBC05" d="M10.53 28.59c-.48-1.45-.76-2.99-.76-4.59s.27-3.14.76-4.59l-7.98-6.19C.92 16.46 0 20.12 0 24c0 3.88.92 7.54 2.56 10.78l7.97-6.19z"/><path fill="#34A853" d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.18 1.48-4.97 2.34-8.16 2.34-6.26 0-11.57-4.22-13.47-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z"/></svg>
+      Continuar com Google
+    </button>
+    <div style="display:flex;align-items:center;gap:10px;margin:10px 0">
+      <div style="flex:1;height:0.5px;background:var(--border)"></div>
+      <span style="font-size:11px;color:var(--muted2)">ou magic link</span>
+      <div style="flex:1;height:0.5px;background:var(--border)"></div>
+    </div>
+    <input class="form-input" type="email" id="loginEmail" placeholder="seu@email.com" style="margin-bottom:10px" onkeydown="if(event.key==='Enter')enviarMagicLink('login')">
+    <button class="btn-full" onclick="enviarMagicLink('login')" style="margin-top:0">Enviar link de acesso →</button>
+    <button class="btn-ghost" onclick="closeModal('loginModal');showModal('signupModal')" style="margin-top:8px">Criar conta grátis</button>
+  </div>
+</div>
+
+<!-- PAYWALL MODAL -->
+<div class="modal-overlay" id="paywallModal">
+  <div class="modal" style="max-width:560px">
+    <button class="modal-close" onclick="closeModal('paywallModal')">×</button>
+    <div class="modal-title">Escolha seu plano 🚀</div>
+    <div class="modal-sub" id="paywallSub">Desbloqueie ferramentas de IA para conseguir sua vaga na gringa.</div>
+
+    <div style="display:flex;flex-direction:column;gap:8px;margin-bottom:1.25rem">
+
+      <!-- Júnior -->
+      <div id="plan-junior" style="border:0.5px solid var(--border);border-radius:12px;padding:1rem;cursor:pointer;transition:all .15s" onclick="selectPlan('junior')">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:5px">
+          <div style="display:flex;align-items:center;gap:8px">
+            <span style="font-size:15px;font-weight:500">Júnior</span>
+            <span style="font-size:11px;background:rgba(59,130,246,.1);color:#93c5fd;border:0.5px solid rgba(59,130,246,.25);border-radius:999px;padding:2px 8px">R$ 29,90/mês</span>
+          </div>
+          <span style="font-size:11px;color:var(--muted)">Ideal para quem está começando</span>
+        </div>
+        <div style="font-size:12px;color:var(--muted);line-height:1.6">✓ Vagas remotas + filtros avançados &nbsp;·&nbsp; ✓ Chat IA para treinar inglês &nbsp;·&nbsp; ✓ Busca personalizada por perfil</div>
+      </div>
+
+      <!-- Pleno -->
+      <div id="plan-pleno" style="border:0.5px solid var(--border);border-radius:12px;padding:1rem;cursor:pointer;transition:all .15s" onclick="selectPlan('pleno')">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:5px">
+          <div style="display:flex;align-items:center;gap:8px">
+            <span style="font-size:15px;font-weight:500">Pleno</span>
+            <span style="font-size:11px;background:rgba(59,130,246,0.07);color:var(--accent);border:0.5px solid rgba(59,130,246,0.2);border-radius:999px;padding:2px 8px">R$ 59,90/mês</span>
+          </div>
+          <span style="font-size:11px;color:var(--muted)">Mais popular</span>
+        </div>
+        <div style="font-size:12px;color:var(--muted);line-height:1.6">✓ Tudo do Júnior &nbsp;·&nbsp; ✓ Otimização de currículo por IA para cada vaga &nbsp;·&nbsp; ✓ Score de compatibilidade detalhado</div>
+      </div>
+
+      <!-- Sênior -->
+      <div id="plan-senior" style="border:0.5px solid var(--border);border-radius:12px;padding:1rem;cursor:pointer;transition:all .15s" onclick="selectPlan('senior')">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:5px">
+          <div style="display:flex;align-items:center;gap:8px">
+            <span style="font-size:15px;font-weight:500">Sênior</span>
+            <span style="font-size:11px;background:rgba(242,198,100,.1);color:var(--gold);border:0.5px solid rgba(242,198,100,.3);border-radius:999px;padding:2px 8px">R$ 79,90/mês</span>
+          </div>
+          <span style="font-size:11px;color:var(--muted)">Para acelerar a busca</span>
+        </div>
+        <div style="font-size:12px;color:var(--muted);line-height:1.6">✓ Tudo do Pleno &nbsp;·&nbsp; ✓ Mentoria semanal ao vivo (todo domingo) &nbsp;·&nbsp; ✓ Acesso à comunidade privada</div>
+      </div>
+
+      <!-- Master -->
+      <div id="plan-master" style="border:0.5px solid rgba(59,130,246,0.25);background:var(--accent-dim);border-radius:12px;padding:1rem;cursor:pointer;transition:all .15s" onclick="selectPlan('master')">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:5px">
+          <div style="display:flex;align-items:center;gap:8px">
+            <span style="font-size:15px;font-weight:500;color:var(--accent)">Master</span>
+            <span style="font-size:11px;background:var(--accent-dim2);color:var(--accent);border:0.5px solid rgba(59,130,246,0.3);border-radius:999px;padding:2px 8px">R$ 99,90/mês</span>
+          </div>
+          <span style="font-size:11px;color:var(--accent-dark)">Resultado garantido</span>
+        </div>
+        <div style="font-size:12px;color:#93c5fd;line-height:1.6">✓ Tudo do Sênior &nbsp;·&nbsp; ✓ Mentoria individual 1:1 &nbsp;·&nbsp; ✓ Revisão de currículo por especialista &nbsp;·&nbsp; ✓ Simulação de entrevista personalizada</div>
+      </div>
+
+    </div>
+    <button class="btn-full" id="paywallCta" onclick="closeModal('paywallModal');showToast('Em breve! Você será avisado no lançamento. 🎉')">Quero ser avisado no lançamento →</button>
+    <div style="text-align:center;font-size:11px;color:var(--muted2);margin-top:10px">Cancele quando quiser · Sem fidelidade</div>
+  </div>
+</div>
+
+<!-- CV OTIMIZADO MODAL -->
+<div class="modal-overlay" id="cvModal">
+  <div class="modal" style="max-width:600px">
+    <button class="modal-close" onclick="closeModal('cvModal')">×</button>
+    <div class="modal-title">Currículo otimizado 📝</div>
+    <div class="modal-sub" id="cvModalSub">IA adaptou seu currículo para esta vaga específica.</div>
+    <div id="cvModalStatus" style="display:none;text-align:center;padding:2rem;color:var(--muted);font-size:13px">
+      <div class="spinner" style="margin:0 auto 1rem"></div>
+      Qwen está otimizando seu currículo...<br>
+      <span style="font-size:11px;opacity:.6">Dados pessoais protegidos — apenas conteúdo profissional enviado à IA</span>
+    </div>
+    <div id="cvModalContent" style="display:none">
+      <!-- Aviso de segurança -->
+      <div style="background:var(--accent-dim);border:0.5px solid rgba(59,130,246,.2);border-radius:8px;padding:10px 14px;font-size:12px;color:var(--accent);margin-bottom:12px;display:flex;gap:8px;align-items:flex-start">
+        <span>🔒</span>
+        <span>Dados pessoais reinseridos localmente — nunca foram enviados ao servidor de IA.</span>
+      </div>
+      <!-- Currículo -->
+      <textarea id="cvTextoFinal" style="width:100%;height:300px;background:var(--surface2);border:0.5px solid var(--border2);border-radius:10px;padding:14px;color:var(--text);font-size:12px;font-family:var(--font-mono);line-height:1.7;outline:none;resize:vertical"></textarea>
+      <div style="display:flex;gap:8px;margin-top:10px">
+        <button class="btn-full" style="flex:1;margin-top:0" onclick="copiarCV()">Copiar currículo</button>
+        <button style="flex:1;padding:11px;border-radius:10px;background:transparent;color:var(--text);border:0.5px solid var(--border2);font-size:14px;cursor:pointer;font-family:'DM Sans',sans-serif" onclick="baixarCV()">Baixar .txt</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- SALARY INDEX MODAL -->
+<div class="modal-overlay" id="salaryModal">
+  <div class="modal" style="max-width:580px">
+    <button class="modal-close" onclick="closeModal('salaryModal')">×</button>
+    <div class="modal-title">💵 Índice de salários — mercado americano 2025</div>
+    <div class="modal-sub">Referência baseada em dados reais do mercado americano. Empresas que oferecem menos estão abaixo do mercado.</div>
+    <div class="salary-table-container" style="display:flex;flex-direction:column;gap:6px;margin-bottom:1.25rem">
+      <div style="text-align:center;padding:1rem;color:var(--muted);font-size:13px">Carregando tabela...</div>
+    </div>
+    <div style="background:rgba(74,222,128,.08);border:0.5px solid rgba(74,222,128,.2);border-radius:10px;padding:.85rem 1rem;font-size:12px;color:#4ade80;line-height:1.6;margin-bottom:12px">
+      <b>Regra de ouro:</b> empresas americanas pagam em dólar. Se for remote-first, peça pelo menos 60–70% da mediana americana para o seu nível. Nunca aceite o "salário de mercado brasileiro" para trabalho que beneficia empresa americana.
+    </div>
+    <button class="btn-full" onclick="closeModal('salaryModal')">Entendido →</button>
+  </div>
+</div>
+
+<!-- LEGAL GUIDE MODAL -->
+<div class="modal-overlay" id="legalModal">
+  <div class="modal" style="max-width:560px">
+    <button class="modal-close" onclick="closeModal('legalModal')">×</button>
+    <div class="modal-title">⚖️ Guia jurídico — trabalhando na gringa</div>
+    <div class="modal-sub">Como funciona cada tipo de contrato para brasileiros em empresas estrangeiras.</div>
+    <div style="display:flex;flex-direction:column;gap:10px;margin-bottom:1.25rem">
+      <div style="background:var(--surface2);border:0.5px solid var(--border);border-radius:10px;padding:1rem">
+        <div style="font-size:13px;font-weight:500;color:var(--accent);margin-bottom:6px">🟦 Independent Contractor (mais comum)</div>
+        <div style="font-size:12px;color:var(--muted);line-height:1.6">Você é autônomo — a empresa não te contrata formalmente. Recebe em dólar via transferência internacional (Wise, Payoneer). <b style="color:var(--text)">Você precisa abrir MEI ou PJ no Brasil</b> para emitir nota fiscal. Paga INSS por conta própria. Sem FGTS, 13º ou férias remuneradas — negocie compensação maior no salário.</div>
+      </div>
+      <div style="background:var(--surface2);border:0.5px solid var(--border);border-radius:10px;padding:1rem">
+        <div style="font-size:13px;font-weight:500;color:#f59e0b;margin-bottom:6px">🟨 EOR — Employer of Record (via Deel, Remote.com)</div>
+        <div style="font-size:12px;color:var(--muted);line-height:1.6">Uma empresa intermediária (como Deel) te contrata formalmente no Brasil em nome da empresa estrangeira. <b style="color:var(--text)">Você tem carteira assinada, FGTS, 13º e férias</b>. A empresa paga um custo extra pelo serviço. É o mais seguro para o trabalhador.</div>
+      </div>
+      <div style="background:var(--surface2);border:0.5px solid var(--border);border-radius:10px;padding:1rem">
+        <div style="font-size:13px;font-weight:500;color:#8b5cf6;margin-bottom:6px">🟪 PJ — Pessoa Jurídica</div>
+        <div style="font-size:12px;color:var(--muted);line-height:1.6">Você abre uma empresa no Brasil (SLU ou Ltda) e emite notas fiscais para a empresa estrangeira. <b style="color:var(--text)">Mais flexível e menos imposto</b> que CLT em muitos casos. Precisa de contador. Popular entre devs sêniores.</div>
+      </div>
+      <div style="background:var(--surface2);border:0.5px solid var(--border);border-radius:10px;padding:1rem">
+        <div style="font-size:13px;font-weight:500;color:#10b981;margin-bottom:6px">🟩 CLT Internacional (raro)</div>
+        <div style="font-size:12px;color:var(--muted);line-height:1.6">Empresa abre filial no Brasil e te contrata com carteira. Muito raro para empresas pequenas/médias. Geralmente só grandes empresas fazem isso (Google, Meta, Amazon têm CNPJ no Brasil).</div>
+      </div>
+    </div>
+    <div style="background:rgba(239,68,68,.08);border:0.5px solid rgba(239,68,68,.2);border-radius:8px;padding:.75rem 1rem;font-size:12px;color:#ef4444;margin-bottom:12px">
+      ⚠️ <b>Imposto de renda:</b> receber em dólar como pessoa física sem nota fiscal pode gerar problemas com a Receita Federal. Consulte sempre um contador antes de aceitar o contrato.
+    </div>
+    <button class="btn-full" onclick="closeModal('legalModal')">Entendido →</button>
+  </div>
+</div>
+
+<!-- ENGLISH TEST MODAL -->
+<div class="modal-overlay" id="englishTestModal">
+  <div class="modal" style="max-width:520px">
+    <button class="modal-close" onclick="closeModal('englishTestModal')">×</button>
+    <div class="modal-title">🎤 Teste seu nível de inglês</div>
+    <div class="modal-sub">A IA avalia seu inglês como um recrutador americano faria — e dá feedback honesto em português.</div>
+    <div id="englishTestContent">
+      <div style="background:var(--surface2);border:0.5px solid var(--border);border-radius:10px;padding:1rem;margin-bottom:1rem;font-size:13px;color:var(--muted);line-height:1.6">
+        Responda <b style="color:var(--text)">3 perguntas em inglês</b>. A IA vai avaliar: vocabulário, gramática, fluência, estrutura das respostas e tom profissional. No final você recebe seu nível (A2 a C1) e dicas específicas de melhoria.
+      </div>
+      <div id="englishTestChat" style="display:flex;flex-direction:column;gap:10px;min-height:120px;margin-bottom:12px"></div>
+      <div id="englishTestInput" style="display:flex;gap:8px">
+        <input class="chat-input" id="etInput" type="text" placeholder="Type your answer in English..." onkeydown="if(event.key==='Enter')sendEnglishTest()">
+        <button class="chat-send" onclick="sendEnglishTest()">→</button>
+      </div>
+      <div id="englishTestResult" style="display:none"></div>
+    </div>
+  </div>
+</div>
+
+<!-- SIMULADOR DE TESTES -->
+<div class="modal-overlay" id="simulatorModal">
+  <div class="modal" style="max-width:640px">
+    <button class="modal-close" onclick="closeModal('simulatorModal')">×</button>
+    <div id="simHome">
+      <div class="modal-title">🎯 Simulador de testes</div>
+      <div class="modal-sub">Perguntas reais que empresas americanas fazem — com gabarito. No plano Sênior a IA corrige sua resposta.</div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:1.25rem" id="simAreaGrid"></div>
+    </div>
+    <div id="simQuiz" style="display:none">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:1.25rem">
+        <button onclick="voltarSimHome()" style="background:none;border:none;color:var(--muted);cursor:pointer;font-size:13px;font-family:'DM Sans',sans-serif;padding:0">← Voltar</button>
+        <div style="font-size:12px;color:var(--muted)" id="simProgress">Pergunta 1/10</div>
+        <div style="font-size:12px;color:var(--accent)" id="simScore">Acertos: 0</div>
+      </div>
+      <div id="simQuizContent"></div>
+    </div>
+    <div id="simResult" style="display:none">
+      <div style="text-align:center;padding:1rem 0">
+        <div style="font-size:48px;margin-bottom:12px" id="simResultEmoji">🎉</div>
+        <div style="font-family:'Instrument Serif',serif;font-size:1.5rem;margin-bottom:6px" id="simResultTitle"></div>
+        <div style="font-size:13px;color:var(--muted);margin-bottom:1.5rem" id="simResultSub"></div>
+        <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:1.5rem" id="simResultStats"></div>
+        <div id="simIaCorrection" style="display:none;background:var(--accent-dim);border:0.5px solid rgba(59,130,246,.2);border-radius:10px;padding:1rem;text-align:left;margin-bottom:1.25rem">
+          <div style="font-size:11px;font-weight:500;text-transform:uppercase;letter-spacing:.08em;color:var(--accent);margin-bottom:8px">✦ Análise IA — onde melhorar</div>
+          <div style="font-size:13px;color:var(--muted);line-height:1.6" id="simIaText">
+            <div class="ai-loading"><span></span><span></span><span></span> &nbsp;Analisando suas respostas...</div>
+          </div>
+        </div>
+        <div style="display:flex;gap:8px;justify-content:center">
+          <button onclick="reiniciarSim()" class="btn-full" style="width:auto;padding:10px 24px">Refazer teste</button>
+          <button onclick="voltarSimHome()" style="padding:10px 24px;border-radius:10px;background:transparent;color:var(--text);border:0.5px solid var(--border2);font-size:14px;cursor:pointer;font-family:'DM Sans',sans-serif">Escolher outra área</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- APPLY MODAL -->
+<div class="modal-overlay" id="applyModal">
+  <div class="modal" style="max-width:540px">
+    <button class="modal-close" onclick="closeModal('applyModal')">×</button>
+    <div class="modal-title" id="applyTitle">Candidatar-se</div>
+    <div class="modal-sub" id="applySub"></div>
+    <div id="applyStatus" style="display:none;text-align:center;padding:2rem;color:var(--muted);font-size:13px">
+      <div class="spinner" style="margin:0 auto 1rem"></div>
+      Enviando candidatura...
+    </div>
+    <div id="applyForm">
+      <div style="background:var(--accent-dim);border:0.5px solid rgba(59,130,246,.2);border-radius:8px;padding:10px 14px;font-size:12px;color:var(--accent);margin-bottom:14px">
+        🚀 Candidatura direta via API — sem precisar preencher formulário externo.
+      </div>
+      <div class="form-row">
+        <div class="form-group"><label class="form-label">Nome *</label><input class="form-input" id="applyName" placeholder="João Silva"></div>
+        <div class="form-group"><label class="form-label">Email *</label><input class="form-input" id="applyEmail" type="email" placeholder="joao@email.com"></div>
+      </div>
+      <div class="form-row">
+        <div class="form-group"><label class="form-label">Telefone</label><input class="form-input" id="applyPhone" placeholder="+55 11 99999-9999"></div>
+        <div class="form-group"><label class="form-label">LinkedIn</label><input class="form-input" id="applyLinkedin" placeholder="linkedin.com/in/joao"></div>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Cover letter <span style="color:var(--accent);font-size:11px;cursor:pointer" onclick="autoFillCoverLetter()">✦ Gerar com IA</span></label>
+        <textarea class="form-input" id="applyCover" rows="4" placeholder="Por que você é o candidato ideal para esta vaga?"></textarea>
+      </div>
+      <div id="applyAtsQuestions" style="display:none;margin-bottom:10px"></div>
+      <div style="background:var(--surface2);border:0.5px solid var(--border);border-radius:8px;padding:10px 12px;font-size:12px;color:var(--muted);margin-bottom:12px">
+        📄 Currículo: <span id="applyCvStatus" style="color:var(--accent)">não carregado</span>
+        <span id="applyCvOk" style="display:none;color:#64f2a0"> ✓ otimizado para esta vaga</span>
+      </div>
+      <button class="btn-full" id="applySubmitBtn" onclick="submitApply()">Enviar candidatura →</button>
+      <div style="text-align:center;font-size:11px;color:var(--muted2);margin-top:8px" id="applyAtsLabel"></div>
+    </div>
+    <div id="applySuccess" style="display:none;text-align:center;padding:1.5rem 0">
+      <div style="font-size:48px;margin-bottom:12px">🎉</div>
+      <div style="font-size:18px;font-weight:500;margin-bottom:8px">Candidatura enviada!</div>
+      <div style="font-size:13px;color:var(--muted);margin-bottom:1.5rem" id="applySuccessMsg"></div>
+
+      <!-- Recruiter message section — Master only -->
+      <div style="background:var(--surface2);border:0.5px solid var(--border);border-radius:12px;padding:1.25rem;text-align:left;margin-bottom:1.25rem" id="recruiterMsgSection">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;flex-wrap:wrap;gap:8px">
+          <div>
+            <div style="display:flex;align-items:center;gap:8px;margin-bottom:2px">
+              <div style="font-size:13px;font-weight:500;color:var(--text)">✉️ Mensagem direta ao recrutador</div>
+              <span style="font-size:10px;padding:2px 8px;border-radius:999px;background:#EEEDFE;color:#3C3489;border:0.5px solid #AFA9EC;font-weight:500">Master</span>
+            </div>
+            <div style="font-size:11px;color:var(--muted)">IA escreve uma mensagem personalizada para o LinkedIn — em inglês, alinhada com a vaga e seu perfil</div>
+          </div>
+          <button onclick="tentarGerarMensagem()" id="btnGerarMsg" style="padding:7px 14px;background:#6d28d9;border:none;border-radius:8px;color:#fff;font-size:12px;font-weight:500;cursor:pointer;font-family:'DM Sans',sans-serif;flex-shrink:0;white-space:nowrap">
+            ✦ Gerar mensagem
+          </button>
+        </div>
+
+        <!-- Teaser — visible to non-master -->
+        <div id="recruiterMsgTeaser" style="background:rgba(109,40,217,.06);border:0.5px solid rgba(109,40,217,.2);border-radius:8px;padding:10px 12px;font-size:12px;color:#7c3aed;line-height:1.6">
+          Candidatos que mandam mensagem ao recrutador em até 24h após aplicar têm muito mais chance de resposta. No plano Master a IA escreve essa mensagem por você — personalizada, em inglês profissional, com seus pontos fortes destacados.
+          <br><button onclick="closeModal('applyModal');showPage('planos')" style="margin-top:8px;background:#6d28d9;border:none;border-radius:6px;padding:5px 12px;color:#fff;font-size:11px;cursor:pointer;font-family:'DM Sans',sans-serif">Ver plano Master →</button>
+        </div>
+
+        <!-- Message editor — shown after generation (Master only) -->
+        <div id="recruiterMsgArea" style="display:none">
+          <textarea id="recruiterMsgText" rows="8" style="width:100%;background:var(--surface);border:0.5px solid var(--border2);border-radius:8px;padding:10px 12px;color:var(--text);font-size:12px;font-family:'DM Sans',sans-serif;line-height:1.7;resize:vertical;outline:none;margin-bottom:8px"></textarea>
+          <div style="font-size:11px;color:var(--muted);margin-bottom:10px">
+            ✏️ Revise e edite antes de enviar — ajuste para soar como você.
+          </div>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:8px">
+            <button onclick="copiarMensagem('linkedin')" style="padding:9px;background:rgba(10,102,194,.1);border:0.5px solid rgba(10,102,194,.3);border-radius:8px;color:#0a66c2;font-size:12px;font-weight:500;cursor:pointer;font-family:'DM Sans',sans-serif">
+              💼 Copiar para LinkedIn
+            </button>
+            <button onclick="copiarMensagem('email')" style="padding:9px;background:var(--accent-dim);border:0.5px solid rgba(59,130,246,.25);border-radius:8px;color:var(--accent);font-size:12px;font-weight:500;cursor:pointer;font-family:'DM Sans',sans-serif">
+              📧 Copiar para email
+            </button>
+          </div>
+          <a id="recruiterLinkedInSearch" href="#" target="_blank" style="display:block;text-align:center;font-size:11px;color:var(--muted);text-decoration:none;padding:6px;border:0.5px solid var(--border);border-radius:6px;transition:color .15s" onmouseover="this.style.color='var(--accent)'" onmouseout="this.style.color='var(--muted)'">
+            🔍 Encontrar recrutador no LinkedIn →
+          </a>
+        </div>
+      </div>
+
+      <button class="btn-full" onclick="closeModal('applyModal')">Fechar</button>
+    </div>
+  </div>
+</div>
+
+<!-- WISE GUIDE MODAL -->
+<div class="modal-overlay" id="wiseModal">
+  <div class="modal" style="max-width:500px">
+    <button class="modal-close" onclick="closeModal('wiseModal')">×</button>
+    <div class="modal-title">💸 Como receber seu salário em dólar</div>
+    <div class="modal-sub">O guia que nenhuma empresa te dá quando você é contratado na gringa.</div>
+
+    <div style="display:flex;flex-direction:column;gap:10px;margin-bottom:1.25rem">
+
+      <div style="background:var(--surface2);border:0.5px solid var(--border);border-radius:10px;padding:1rem">
+        <div style="font-size:13px;font-weight:500;color:var(--accent);margin-bottom:6px">🏆 Wise — recomendação principal</div>
+        <div style="font-size:12px;color:var(--muted);line-height:1.6;margin-bottom:8px">Conta em dólar real nos EUA, conversão pela taxa interbancária (a melhor possível), sem taxas escondidas. Você recebe um número de conta americano e roteamento ABA — a empresa deposita como se você fosse um americano.</div>
+        <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px">
+          <div style="font-size:11px;color:var(--muted2)">Taxa típica: 0,4–0,6% · Sem mensalidade</div>
+          <a href="https://wise.com/invite/remotebr" target="_blank" onclick="trackWiseClick()" style="background:var(--accent);color:#fff;border-radius:8px;padding:7px 14px;font-size:12px;font-weight:500;text-decoration:none;transition:opacity .2s">Abrir conta Wise →</a>
+        </div>
+      </div>
+
+      <div style="background:var(--surface2);border:0.5px solid var(--border);border-radius:10px;padding:1rem">
+        <div style="font-size:13px;font-weight:500;margin-bottom:6px">Payoneer — alternativa popular</div>
+        <div style="font-size:12px;color:var(--muted);line-height:1.6;margin-bottom:6px">Muito usada por freelancers. Aceita pagamentos de Upwork, Fiverr e empresas diretas. Taxa um pouco maior que o Wise mas boa cobertura.</div>
+        <a href="https://www.payoneer.com" target="_blank" style="font-size:12px;color:var(--accent)">Saiba mais →</a>
+      </div>
+
+      <div style="background:var(--surface2);border:0.5px solid var(--border);border-radius:10px;padding:1rem">
+        <div style="font-size:13px;font-weight:500;color:#f59e0b;margin-bottom:6px">⚠️ O que NUNCA fazer</div>
+        <div style="font-size:12px;color:var(--muted);line-height:1.6">
+          • Não declare como "doação" ou "presente" — é fraude fiscal<br>
+          • Não receba por Western Union para valores recorrentes<br>
+          • Não fique como PF sem nota fiscal — Receita Federal vai questionar<br>
+          • Declare sempre no IRPF como "Rendimentos do Exterior"
+        </div>
+      </div>
+
+      <div style="background:rgba(74,222,128,.08);border:0.5px solid rgba(74,222,128,.2);border-radius:8px;padding:.75rem 1rem;font-size:12px;color:#4ade80;line-height:1.6">
+        💡 <b>Dica prática:</b> Abra a conta Wise ANTES de aceitar a oferta de emprego. Leva 5 minutos e você já tem o número de conta americano para colocar no contrato. Economize horas de burocracia depois.
+      </div>
+    </div>
+
+    <button class="btn-full" onclick="closeModal('wiseModal')">Entendido, vou abrir minha conta →</button>
+    <div style="text-align:center;font-size:10px;color:var(--muted2);margin-top:8px">RemoteBR pode receber comissão ao indicar o Wise. Isso não influencia nossa recomendação — é genuinamente o melhor produto disponível.</div>
+  </div>
+</div>
+
+<!-- TOAST -->
+<div class="toast" id="toast"></div>
+
+<script src="/app.js"></script>
+<!-- MOBILE FILTER MODAL -->
+<div class="modal-overlay" id="mobileFilterModal" style="align-items:flex-end;padding:0">
+  <div class="modal" style="width:100%;max-width:100%;border-radius:16px 16px 0 0;padding:1.5rem 1.25rem 2rem;max-height:80vh;overflow-y:auto">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:1.25rem">
+      <div style="font-size:17px;font-weight:600;color:var(--text)">⚙️ Filtros</div>
+      <button onclick="fecharFiltrosMobile()" style="background:none;border:none;font-size:22px;color:var(--muted);cursor:pointer;padding:0 4px">✕</button>
+    </div>
+
+    <div style="font-size:12px;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:.08em;margin-bottom:8px">Salário mínimo</div>
+    <div style="display:flex;flex-direction:column;gap:8px;margin-bottom:1.25rem">
+      <button class="mobile-filter-opt active" id="mfsal-0"      onclick="setMobileSalary(0,this)">💵 Qualquer salário</button>
+      <button class="mobile-filter-opt" id="mfsal-30000"  onclick="setMobileSalary(30000,this)">💵 $30k+ por ano</button>
+      <button class="mobile-filter-opt" id="mfsal-50000"  onclick="setMobileSalary(50000,this)">💵 $50k+ por ano</button>
+      <button class="mobile-filter-opt" id="mfsal-80000"  onclick="setMobileSalary(80000,this)">💵 $80k+ por ano</button>
+      <button class="mobile-filter-opt" id="mfsal-100000" onclick="setMobileSalary(100000,this)">💵 $100k+ por ano</button>
+      <button class="mobile-filter-opt" id="mfsal-150000" onclick="setMobileSalary(150000,this)">💵 $150k+ por ano</button>
+    </div>
+
+    <div style="font-size:12px;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:.08em;margin-bottom:8px">Tipo</div>
+    <div style="display:flex;flex-direction:column;gap:8px;margin-bottom:1.25rem">
+      <button class="mobile-filter-opt active" id="mftype-all"    onclick="setMobileType('all',this)">🌍 Todos</button>
+      <button class="mobile-filter-opt" id="mftype-remote" onclick="setMobileType('remote',this)">🏠 Só Remoto</button>
+    </div>
+
+    <div style="font-size:12px;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:.08em;margin-bottom:8px">Nível</div>
+    <div style="display:flex;flex-direction:column;gap:8px;margin-bottom:1.5rem">
+      <button class="mobile-filter-opt active" id="mfexp-all"    onclick="setMobileExp('all',this)">Todos os níveis</button>
+      <button class="mobile-filter-opt" id="mfexp-junior" onclick="setMobileExp('junior',this)">🟢 Júnior</button>
+      <button class="mobile-filter-opt" id="mfexp-mid"    onclick="setMobileExp('mid',this)">🟡 Pleno</button>
+      <button class="mobile-filter-opt" id="mfexp-senior" onclick="setMobileExp('senior',this)">🟠 Sênior</button>
+    </div>
+
+    <button onclick="fecharFiltrosMobile()" class="btn-full" style="margin-top:0">Ver vagas →</button>
+  </div>
+</div>
+
+
+<nav id="mobileBottomNav" style="display:none;position:fixed;bottom:0;left:0;right:0;background:rgba(10,10,14,0.97);backdrop-filter:blur(12px);border-top:0.5px solid var(--border);z-index:200;padding:6px 0 env(safe-area-inset-bottom,6px)">
+  <div style="display:grid;grid-template-columns:repeat(5,1fr);gap:0">
+    <button onclick="showPage('candidates');setBottomNav('vagas')" id="bnav-vagas" style="background:none;border:none;color:var(--accent);display:flex;flex-direction:column;align-items:center;gap:2px;padding:6px 4px;cursor:pointer;font-family:var(--font-sans)">
+      <span style="font-size:20px">🔍</span>
+      <span style="font-size:10px;font-weight:500">Vagas</span>
+    </button>
+    <button onclick="showPage('candidates');switchTab('explorar',document.querySelector('[onclick*=\"explorar\"]'));setBottomNav('explorar')" id="bnav-explorar" style="background:none;border:none;color:var(--muted);display:flex;flex-direction:column;align-items:center;gap:2px;padding:6px 4px;cursor:pointer;font-family:var(--font-sans)">
+      <span style="font-size:20px">🌐</span>
+      <span style="font-size:10px">Explorar</span>
+    </button>
+    <button onclick="showPage('candidates');switchTab('applied',document.querySelector('[onclick*=\"applied\"]'));setBottomNav('candidaturas')" id="bnav-candidaturas" style="background:none;border:none;color:var(--muted);display:flex;flex-direction:column;align-items:center;gap:2px;padding:6px 4px;cursor:pointer;font-family:var(--font-sans)">
+      <span style="font-size:20px">📋</span>
+      <span style="font-size:10px">Candidaturas</span>
+    </button>
+    <button onclick="showPage('planos');setBottomNav('planos')" id="bnav-planos" style="background:none;border:none;color:var(--muted);display:flex;flex-direction:column;align-items:center;gap:2px;padding:6px 4px;cursor:pointer;font-family:var(--font-sans)">
+      <span style="font-size:20px">💎</span>
+      <span style="font-size:10px">Planos</span>
+    </button>
+    <button onclick="toggleMobileMenu();setBottomNav('mais')" id="bnav-mais" style="background:none;border:none;color:var(--muted);display:flex;flex-direction:column;align-items:center;gap:2px;padding:6px 4px;cursor:pointer;font-family:var(--font-sans)">
+      <span style="font-size:20px">☰</span>
+      <span style="font-size:10px">Mais</span>
+    </button>
+  </div>
+</nav>
+
+<script>
+if('serviceWorker' in navigator) {
+  window.addEventListener('load', () => {
+    navigator.serviceWorker.register('/sw.js').catch(() => {});
+  });
+}
+</script>
+</body>
+</html>
