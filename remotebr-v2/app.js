@@ -213,7 +213,10 @@ window.addEventListener('load', () => {
 
 // ===== INIT =====
 window.addEventListener('load', () => {
-  // loadJobs called at end of script with initSupabase
+  loadJobs('');
+  if(typeof initSupabase === 'function') initSupabase();
+  if(typeof aplicarMobile === 'function') aplicarMobile();
+  if(typeof configurarContato === 'function') configurarContato('remot3br@gmail.com');
 });
 
 // ===== FONTES DE VAGAS =====
