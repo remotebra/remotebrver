@@ -1,55 +1,20 @@
 {
   "version": 2,
-  "public": true,
-  "outputDirectory": "public",
-  "rewrites": [
+  "routes": [
     {
-      "source": "/.netlify/functions/proxy",
-      "destination": "/api/proxy"
+      "src": "/api/(.*)",
+      "dest": "/api/$1"
     },
     {
-      "source": "/.netlify/functions/ia",
-      "destination": "/api/ia"
+      "src": "/(.*\\.(js|css|html|json|png|svg|ico|txt|webmanifest))",
+      "dest": "/public/$1"
     },
     {
-      "source": "/.netlify/functions/owner-check",
-      "destination": "/api/owner-check"
-    },
-    {
-      "source": "/((?!api/).*)",
-      "destination": "/index.html"
+      "src": "/(.*)",
+      "dest": "/public/index.html"
     }
   ],
   "headers": [
-    {
-      "source": "/(.*)",
-      "headers": [
-        {
-          "key": "X-Frame-Options",
-          "value": "DENY"
-        },
-        {
-          "key": "X-Content-Type-Options",
-          "value": "nosniff"
-        },
-        {
-          "key": "X-XSS-Protection",
-          "value": "1; mode=block"
-        },
-        {
-          "key": "Referrer-Policy",
-          "value": "strict-origin-when-cross-origin"
-        },
-        {
-          "key": "Permissions-Policy",
-          "value": "camera=(), microphone=(), geolocation=()"
-        },
-        {
-          "key": "Strict-Transport-Security",
-          "value": "max-age=31536000; includeSubDomains"
-        }
-      ]
-    },
     {
       "source": "/api/(.*)",
       "headers": [
