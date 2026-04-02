@@ -156,7 +156,7 @@ function updateMobileFilterCount() {
 // ===== OWNER CHECK =====
 async function verificarOwner(email) {
   try {
-    const res = await fetch('/.netlify/functions/owner-check', {
+    const res = await fetch('/api/owner-check', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ email })
@@ -312,19 +312,24 @@ async function loadJobs(category) {
 
 // CORS proxy fallback — usado quando API bloqueia chamada direta do browser
 // ===== CORS PROXY CHAIN =====
-// 1. Próprio proxy Netlify (/.netlify/functions/proxy) — mais confiável
+// 1. Próprio proxy Netlify (/api/proxy) — mais confiável
 const sourceStatus = {}; // tracks which sources loaded: '✓' or '✗'
 
 async function corsGet(url, sourceName = '') {
-  // 1. Netlify own proxy — roda no servidor, sem CORS
-  try {
-    const proxyUrl = `/.netlify/functions/proxy?url=${encodeURIComponent(url)}`;
-    const res = await fetch(proxyUrl, { signal: AbortSignal.timeout(12000) });
-    if (res.ok) {
-      if (sourceName) sourceStatus[sourceName] = '✓';
-      return res;
-    }
-  } catch {}
+  // Try proxy — works on both Netlify (/api/proxy) and Vercel (/api/proxy)
+  const proxyPaths = ['/api/proxy', '/api/proxy'];
+  for (const path of proxyPaths) {
+    try {
+      const proxyUrl = path + '?url=' + encodeURIComponent(url);
+      const res = await fetch(proxyUrl, { signal: AbortSignal.timeout(12000) });
+      if (res.ok) {
+        if (sourceName) sourceStatus[sourceName] = '✓';
+        return res;
+      }
+    } catch {}
+  }
+  // fallback below...
+  try { const x = null; } catch {}
 
   // 2. Acesso direto — funciona para Lever e Greenhouse que têm CORS aberto
   try {
@@ -792,7 +797,7 @@ async function chamarIA(mensagens, sistema) {
   const msgs = sistema
     ? [{ role: 'system', content: sistema }, ...mensagens]
     : mensagens;
-  const res = await fetch('/.netlify/functions/ia', {
+  const res = await fetch('/api/ia', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ messages: msgs, max_tokens: 800 })
