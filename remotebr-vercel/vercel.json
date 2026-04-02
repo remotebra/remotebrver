@@ -1,29 +1,70 @@
 {
   "version": 2,
   "public": true,
-  "buildCommand": null,
   "outputDirectory": "public",
   "rewrites": [
-    { "source": "/.netlify/functions/proxy", "destination": "/api/proxy" },
-    { "source": "/.netlify/functions/ia",    "destination": "/api/ia"    },
-    { "source": "/.netlify/functions/owner-check", "destination": "/api/owner-check" }
+    {
+      "source": "/.netlify/functions/proxy",
+      "destination": "/api/proxy"
+    },
+    {
+      "source": "/.netlify/functions/ia",
+      "destination": "/api/ia"
+    },
+    {
+      "source": "/.netlify/functions/owner-check",
+      "destination": "/api/owner-check"
+    },
+    {
+      "source": "/((?!api/).*)",
+      "destination": "/index.html"
+    }
   ],
   "headers": [
     {
       "source": "/(.*)",
       "headers": [
-        { "key": "X-Frame-Options",           "value": "DENY" },
-        { "key": "X-Content-Type-Options",    "value": "nosniff" },
-        { "key": "X-XSS-Protection",          "value": "1; mode=block" },
-        { "key": "Referrer-Policy",           "value": "strict-origin-when-cross-origin" },
-        { "key": "Permissions-Policy",        "value": "camera=(), microphone=(), geolocation=()" },
-        { "key": "Strict-Transport-Security", "value": "max-age=31536000; includeSubDomains" }
+        {
+          "key": "X-Frame-Options",
+          "value": "DENY"
+        },
+        {
+          "key": "X-Content-Type-Options",
+          "value": "nosniff"
+        },
+        {
+          "key": "X-XSS-Protection",
+          "value": "1; mode=block"
+        },
+        {
+          "key": "Referrer-Policy",
+          "value": "strict-origin-when-cross-origin"
+        },
+        {
+          "key": "Permissions-Policy",
+          "value": "camera=(), microphone=(), geolocation=()"
+        },
+        {
+          "key": "Strict-Transport-Security",
+          "value": "max-age=31536000; includeSubDomains"
+        }
       ]
     },
     {
       "source": "/api/(.*)",
       "headers": [
-        { "key": "Access-Control-Allow-Origin", "value": "*" }
+        {
+          "key": "Access-Control-Allow-Origin",
+          "value": "*"
+        },
+        {
+          "key": "Access-Control-Allow-Methods",
+          "value": "GET, POST, OPTIONS"
+        },
+        {
+          "key": "Access-Control-Allow-Headers",
+          "value": "Content-Type"
+        }
       ]
     }
   ]

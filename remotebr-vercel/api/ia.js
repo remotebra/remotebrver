@@ -1,14 +1,14 @@
 const GROQ_KEY = process.env.GROQ_KEY || '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';
 const GROQ_MODEL = 'llama-3.3-70b-versatile';
 
-export default async function handler(req, res) {
+module.exports = async function handler(req, res) {
   res.setHeader('Access-Control-Allow-Origin', '*');
   res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
   if (req.method === 'OPTIONS') return res.status(200).end();
   if (req.method !== 'POST') return res.status(405).json({ error: 'Method not allowed' });
 
   try {
-    const { messages, max_tokens = 800 } = req.body;
+    const { messages, max_tokens = 800 } = req.body || {};
     if (!messages) return res.status(400).json({ error: 'Missing messages' });
 
     const response = await fetch('https://api.groq.com/openai/v1/chat/completions', {
@@ -27,4 +27,4 @@ export default async function handler(req, res) {
   } catch (err) {
     res.status(502).json({ error: 'IA indisponivel', detail: err.message });
   }
-}
+};

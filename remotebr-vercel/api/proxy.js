@@ -4,9 +4,10 @@ const ALLOWED_DOMAINS = [
   'boards-api.greenhouse.io', 'translate.googleapis.com',
 ];
 
-export default async function handler(req, res) {
+module.exports = async function handler(req, res) {
   res.setHeader('Access-Control-Allow-Origin', '*');
-  res.setHeader('Access-Control-Allow-Methods', 'GET, OPTIONS');
+  res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS');
+  res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
   if (req.method === 'OPTIONS') return res.status(200).end();
 
   const targetUrl = req.query.url;
@@ -17,7 +18,10 @@ export default async function handler(req, res) {
 
   try {
     const response = await fetch(targetUrl, {
-      headers: { 'User-Agent': 'RemoteBR/1.0', 'Accept': 'application/json, text/xml, */*' },
+      headers: {
+        'User-Agent': 'RemoteBR/1.0',
+        'Accept': 'application/json, text/xml, */*'
+      },
       signal: AbortSignal.timeout(10000),
     });
     const contentType = response.headers.get('content-type') || 'application/json';
@@ -28,4 +32,4 @@ export default async function handler(req, res) {
   } catch (err) {
     res.status(502).json({ error: 'Fetch failed', detail: err.message });
   }
-}
+};
