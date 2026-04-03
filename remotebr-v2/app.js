@@ -676,7 +676,7 @@ function renderJobs(jobs) {
     // Salary highlight — show prominently if available
     const salDisplay = j.salary ? `<span class="jc-mi sal">💵 ${j.salary}</span>` : '';
 
-    return `<div class="job-card" id="jc-${j.id}" onclick="toggleJob(${j.id})">
+    return `<div class="job-card" id="jc-${j.id}" onclick="toggleJob('${j.id}')">
       <div class="jc-main">
         <div class="job-logo">${logoHtml}</div>
         <div class="jc-body">
@@ -703,7 +703,7 @@ function renderJobs(jobs) {
         </div>
         <div class="jc-right">
           ${matchHtml}
-          <button class="jc-save" onclick="event.stopPropagation();toggleSave(${j.id})" id="save-${j.id}">${savedIcon}</button>
+          <button class="jc-save" onclick="event.stopPropagation();toggleSave('${j.id}')" id="save-${j.id}">${savedIcon}</button>
         </div>
       </div>
       <div class="job-expanded" id="je-${j.id}">
@@ -736,10 +736,10 @@ function renderJobs(jobs) {
             <div style="font-size:11px;color:var(--muted)">Aumente suas chances de entrevista antes de aplicar</div>
           </div>
           <div style="display:flex;gap:6px;flex-wrap:wrap">
-            <button class="jc-tool" onclick="event.stopPropagation();abrirFerramenta('ats',${j.id})" style="font-size:12px;padding:5px 12px">🎯 Analisar ATS</button>
-            <button class="jc-tool" onclick="event.stopPropagation();abrirFerramenta('otimizar',${j.id})" style="font-size:12px;padding:5px 12px">📝 Otimizar CV</button>
-            <button class="jc-tool" onclick="event.stopPropagation();abrirFerramenta('coverLetter',${j.id})" style="font-size:12px;padding:5px 12px">✉️ Cover letter</button>
-            <button class="jc-tool" id="trad-${j.id}" onclick="event.stopPropagation();traduzirVaga(${j.id})" style="font-size:12px;padding:5px 12px">🌐 Traduzir PT</button>
+            <button class="jc-tool" onclick="event.stopPropagation();abrirFerramenta('ats','${j.id}')" style="font-size:12px;padding:5px 12px">🎯 Analisar ATS</button>
+            <button class="jc-tool" onclick="event.stopPropagation();abrirFerramenta('otimizar','${j.id}')" style="font-size:12px;padding:5px 12px">📝 Otimizar CV</button>
+            <button class="jc-tool" onclick="event.stopPropagation();abrirFerramenta('coverLetter','${j.id}')" style="font-size:12px;padding:5px 12px">✉️ Cover letter</button>
+            <button class="jc-tool" id="trad-${j.id}" onclick="event.stopPropagation();traduzirVaga('${j.id}')" style="font-size:12px;padding:5px 12px">🌐 Traduzir PT</button>
           </div>
         </div>
 
@@ -760,9 +760,9 @@ function renderJobs(jobs) {
         <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px;margin-top:16px;padding-top:14px;border-top:0.5px solid var(--border)">
           <div style="font-size:11px;color:var(--muted2)">via ${j._source||'Remotive'} · ${timeAgo(j.publication_date)}</div>
           <div style="display:flex;gap:8px;align-items:center">
-            <button class="jc-save" onclick="event.stopPropagation();toggleSave(${j.id})" id="save-${j.id}" style="padding:6px 12px;font-size:12px">${savedJobs.has(j.id)?'⭐ Salvo':'☆ Salvar'}</button>
+            <button class="jc-save" onclick="event.stopPropagation();toggleSave('${j.id}')" id="save-${j.id}" style="padding:6px 12px;font-size:12px">${savedJobs.has(j.id)?'⭐ Salvo':'☆ Salvar'}</button>
             <a class="btn-apply ${isApplied?'applied':''}" href="${j.url}" target="_blank"
-              onclick="event.preventDefault();event.stopPropagation();abrirCandidatura(${j.id})"
+              onclick="event.preventDefault();event.stopPropagation();abrirCandidatura('${j.id}')"
               id="apply-${j.id}" style="font-size:14px;padding:10px 24px">${isApplied ? '✓ Aplicado' : 'Apply Now ↗'}</a>
           </div>
         </div>
@@ -772,14 +772,16 @@ function renderJobs(jobs) {
 }
 
 function toggleJob(id) {
-  const card = document.getElementById(`jc-${id}`);
-  const wasExpanded = card.classList.contains('expanded');
-  document.querySelectorAll('.job-card.expanded').forEach(c => c.classList.remove('expanded'));
-  if(!wasExpanded) {
-    card.classList.add('expanded');
-    if(!aiCache[id]) analyzeJob(id);
-    else document.getElementById(`ai-${id}`).textContent = aiCache[id];
-  }
+  try {
+    const card = document.getElementById('jc-' + id);
+    if(!card) return;
+    const wasExpanded = card.classList.contains('expanded');
+    document.querySelectorAll('.job-card.expanded').forEach(c => c.classList.remove('expanded'));
+    if(!wasExpanded) {
+      card.classList.add('expanded');
+      setTimeout(() => card.scrollIntoView({ behavior:'smooth', block:'nearest' }), 50);
+    }
+  } catch(e) { console.error('toggleJob:', e); }
 }
 
 // ===== FILTRO DADOS SENSÍVEIS (LGPD) =====

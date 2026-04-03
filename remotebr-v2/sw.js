@@ -1,4 +1,4 @@
-const CACHE_NAME = 'remotebr-v1';
+const CACHE_NAME = 'remotebr-v3';
 const STATIC_ASSETS = [
   '/',
   '/app.js',
