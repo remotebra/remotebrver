@@ -1,6 +1,7 @@
 
 // ===== STATE =====
 let allJobs = [];
+let filteredJobs = [];
 let savedJobs = new Set();
 // ===== CANDIDATURAS TRACKING =====
 // Cada candidatura: { id, job, status, appliedAt, updatedAt, feedback, companyNotified }
@@ -301,10 +302,11 @@ async function loadJobs(category) {
       ...j,
       matchScore: userProfile.cvLoaded ? Math.floor(Math.random()*25+70) : null
     }));
+    filteredJobs = allJobs;
     renderJobs(allJobs);
-    updateStats();
-    verificarIdadeVagas();
-    updateSourceStatus();
+    try { updateStats(); } catch(e) {}
+    try { verificarIdadeVagas(); } catch(e) {}
+    try { updateSourceStatus(); } catch(e) {}
     if(failed > 0 && loaded > 0) {
       showToast(`✓ ${loaded} fonte${loaded>1?'s':''} carregada${loaded>1?'s':''} · ${failed} indisponível${failed>1?'s':''} agora`);
     }
