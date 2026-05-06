@@ -1,30 +1,62 @@
-const GROQ_KEY = process.env.GROQ_KEY || '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';
-const GROQ_MODEL = 'llama-3.3-70b-versatile';
+const CACHE_NAME = 'remotebr-v3';
+const STATIC_ASSETS = [
+  '/',
+  '/app.js',
+  '/manifest.json'
+];
 
-module.exports = async function handler(req, res) {
-  res.setHeader('Access-Control-Allow-Origin', '*');
-  res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
-  if (req.method === 'OPTIONS') return res.status(200).end();
-  if (req.method !== 'POST') return res.status(405).json({ error: 'Method not allowed' });
+// Instala e faz cache dos assets principais
+self.addEventListener('install', event => {
+  event.waitUntil(
+    caches.open(CACHE_NAME).then(cache => {
+      return cache.addAll(STATIC_ASSETS).catch(() => {
+        // Se algum asset falhar, continua mesmo assim
+        return Promise.resolve();
+      });
+    })
+  );
+  self.skipWaiting();
+});
 
-  try {
-    const { messages, max_tokens = 800 } = req.body || {};
-    if (!messages) return res.status(400).json({ error: 'Missing messages' });
+// Ativa e limpa caches antigos
+self.addEventListener('activate', event => {
+  event.waitUntil(
+    caches.keys().then(keys =>
+      Promise.all(keys.filter(k => k !== CACHE_NAME).map(k => caches.delete(k)))
+    )
+  );
+  self.clients.claim();
+});
 
-    const response = await fetch('https://api.groq.com/openai/v1/chat/completions', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${GROQ_KEY}`,
-      },
-      body: JSON.stringify({ model: GROQ_MODEL, messages, max_tokens, temperature: 0.7 }),
-      signal: AbortSignal.timeout(30000),
-    });
+// Estratégia: Network First para API, Cache First para assets estáticos
+self.addEventListener('fetch', event => {
+  const url = new URL(event.request.url);
 
-    const data = await response.json();
-    if (!response.ok) return res.status(response.status).json({ error: data.error?.message || 'Groq error' });
-    res.status(200).json(data);
-  } catch (err) {
-    res.status(502).json({ error: 'IA indisponivel', detail: err.message });
+  // Não interceptar requests de terceiros ou API calls
+  if (!url.origin.includes('remotebr.netlify.app') && !url.origin.includes('localhost')) {
+    return;
   }
-};
+
+  // Para navegação (HTML), tenta rede primeiro
+  if (event.request.mode === 'navigate') {
+    event.respondWith(
+      fetch(event.request)
+        .catch(() => caches.match('/'))
+    );
+    return;
+  }
+
+  // Para assets estáticos, cache first
+  event.respondWith(
+    caches.match(event.request).then(cached => {
+      if (cached) return cached;
+      return fetch(event.request).then(response => {
+        if (response.ok && event.request.method === 'GET') {
+          const clone = response.clone();
+          caches.open(CACHE_NAME).then(cache => cache.put(event.request, clone));
+        }
+        return response;
+      }).catch(() => cached);
+    })
+  );
+});
