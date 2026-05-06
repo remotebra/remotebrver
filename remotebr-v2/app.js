@@ -51,10 +51,10 @@ function toggleTheme() {
 
 // ===== STRIPE =====
 const STRIPE_LINKS = {
-  junior: 'LINK_JUNIOR',
-  pleno:  'LINK_PLENO',
-  senior: 'LINK_SENIOR',
-  master: 'LINK_MASTER'
+  junior: '7sY00je0McgW2v4cnl8ww00',
+  pleno:  '28E14naOAcgWfhQ1IH8ww01',
+  senior: '5kQ00jg8Uft83z81IH8ww02',
+  master: '5kQ28raOA94K1r0bjh8ww03'
 };
 function stripeClick(plan) {
   sessionStorage.setItem('pendingPlan', plan);
