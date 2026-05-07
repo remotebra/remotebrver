@@ -1,4 +1,10 @@
 {
+  "outputDirectory": ".",
+  "routes": [
+    { "src": "/api/(.*)", "dest": "/api/$1" },
+    { "src": "/(.*\\.(js|css|json|png|svg|ico|webmanifest|txt))", "dest": "/$1" },
+    { "src": "/(.*)", "dest": "/index.html" }
+  ],
   "headers": [
     {
       "source": "/api/(.*)",
