@@ -1,18 +1,7 @@
 {
-  "outputDirectory": ".",
   "routes": [
     { "src": "/api/(.*)", "dest": "/api/$1" },
-    { "src": "/(.*\\.(js|css|json|png|svg|ico|webmanifest|txt))", "dest": "/$1" },
+    { "src": "/(.*\\.(js|css|json|png|svg|ico|webmanifest|txt|html))", "dest": "/$1" },
     { "src": "/(.*)", "dest": "/index.html" }
-  ],
-  "headers": [
-    {
-      "source": "/api/(.*)",
-      "headers": [
-        { "key": "Access-Control-Allow-Origin", "value": "*" },
-        { "key": "Access-Control-Allow-Methods", "value": "GET, POST, OPTIONS" },
-        { "key": "Access-Control-Allow-Headers", "value": "Content-Type" }
-      ]
-    }
   ]
 }
