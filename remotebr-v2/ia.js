@@ -260,23 +260,18 @@ async function fetchAshby() {
 let fonteAtual = 'all';
 
 const LEVER_COMPANIES = [
-  'linear','mercury','brex','loom','miro',
-  'rippling','lattice','remote','notion'
+  'linear','rippling','lattice','miro','remote'
 ];
 
 const GREENHOUSE_COMPANIES = [
-  { token:'gitlab', name:'GitLab' },
-  { token:'shopify', name:'Shopify' },
+  { token:'gitlab',     name:'GitLab'     },
   { token:'automattic', name:'Automattic' },
-  { token:'buffer', name:'Buffer' },
-  { token:'zapier', name:'Zapier' },
-  { token:'basecamp', name:'Basecamp' },
-  { token:'duckduckgo', name:'DuckDuckGo' },
-  { token:'close', name:'Close' },
-  { token:'invision', name:'InVision' }
+  { token:'elastic',    name:'Elastic'    },
+  { token:'cloudflare', name:'Cloudflare' },
+  { token:'mongodb',    name:'MongoDB'    },
 ];
 
-function trocarFonte(fonte, el) {
+function selecionarFonte(fonte, el) {
   fonteAtual = fonte;
   document.querySelectorAll('[id^="src-"]').forEach(b => b.classList.remove('active'));
   el.classList.add('active');
