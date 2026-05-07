@@ -1,5 +1,5 @@
-const GROQ_KEY = process.env.GROQ_KEY || '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';
-const GROQ_MODEL = 'llama-3.3-70b-versatile';
+const GEMINI_KEY = process.env.GEMINI_KEY || 'AIzaSyDMA1E8KOr1qFBHu_DuR83SbxbIbRw22O0';
+const GEMINI_URL = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${GEMINI_KEY}`;
 
 module.exports = async function handler(req, res) {
   res.setHeader('Access-Control-Allow-Origin', '*');
@@ -11,19 +11,36 @@ module.exports = async function handler(req, res) {
     const { messages, max_tokens = 800 } = req.body || {};
     if (!messages) return res.status(400).json({ error: 'Missing messages' });
 
-    const response = await fetch('https://api.groq.com/openai/v1/chat/completions', {
+    const contents = messages
+      .filter(m => m.role !== 'system')
+      .map(m => ({
+        role: m.role === 'assistant' ? 'model' : 'user',
+        parts: [{ text: m.content }]
+      }));
+
+    const systemMsg = messages.find(m => m.role === 'system');
+    if (systemMsg) {
+      contents.unshift({ role: 'user', parts: [{ text: systemMsg.content }] });
+      contents.splice(1, 0, { role: 'model', parts: [{ text: 'Entendido.' }] });
+    }
+
+    const response = await fetch(GEMINI_URL, {
       method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${GROQ_KEY}`,
-      },
-      body: JSON.stringify({ model: GROQ_MODEL, messages, max_tokens, temperature: 0.7 }),
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        contents,
+        generationConfig: { maxOutputTokens: max_tokens, temperature: 0.7 }
+      }),
       signal: AbortSignal.timeout(30000),
     });
 
     const data = await response.json();
-    if (!response.ok) return res.status(response.status).json({ error: data.error?.message || 'Groq error' });
-    res.status(200).json(data);
+    if (!response.ok) {
+      return res.status(response.status).json({ error: data.error?.message || 'Gemini error' });
+    }
+
+    const text = data.candidates?.[0]?.content?.parts?.[0]?.text || '';
+    res.status(200).json({ choices: [{ message: { content: text } }] });
   } catch (err) {
     res.status(502).json({ error: 'IA indisponivel', detail: err.message });
   }
