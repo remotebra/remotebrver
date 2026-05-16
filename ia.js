@@ -1,28 +1,35 @@
-
-const GEMINI_KEY = process.env.GEMINI_KEY || 'AIzaSyDMA1E8KOr1qFBHu_DuR83SbxbIbRw22O0';
-const GEMINI_MODEL = 'gemini-2.0-flash';
+const ALLOWED_DOMAINS = [
+  'remotive.com', 'jobicy.com', 'arbeitnow.com', 'himalayas.app',
+  'remoteok.com', 'weworkremotely.com', 'api.lever.co',
+  'boards-api.greenhouse.io', 'translate.googleapis.com',
+];
 
 module.exports = async function handler(req, res) {
   res.setHeader('Access-Control-Allow-Origin', '*');
+  res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS');
   res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
   if (req.method === 'OPTIONS') return res.status(200).end();
-  if (req.method !== 'POST') return res.status(405).json({ error: 'Method not allowed' });
+
+  const targetUrl = req.query.url;
+  if (!targetUrl) return res.status(400).json({ error: 'Missing url parameter' });
+
+  const allowed = ALLOWED_DOMAINS.some(d => targetUrl.includes(d));
+  if (!allowed) return res.status(403).json({ error: 'Domain not allowed' });
 
   try {
-    const { messages, max_tokens = 800 } = req.body || {};
-    if (!messages) return res.status(400).json({ error: 'Missing messages' });
-
-    // Converte formato OpenAI → Gemini
-    const contents = [];
-    for (const m of messages) {
-      if (m.role === 'system') {
-        // Gemini não tem role "system" — injeta como primeiro turno user/model
-        contents.push({ role: 'user', parts: [{ text: m.content }] });
-        contents.push({ role: 'model', parts: [{ text: 'Entendido. Vou seguir essas instruções.' }] });
-      } else {
-        contents.push({
-          role: m.role === 'assistant' ? 'model' : 'user',
-          parts: [{ text: m.content }]
-        });
-      }
-    };
+    const response = await fetch(targetUrl, {
+      headers: {
+        'User-Agent': 'RemoteBR/1.0',
+        'Accept': 'application/json, text/xml, */*'
+      },
+      signal: AbortSignal.timeout(10000),
+    });
+    const contentType = response.headers.get('content-type') || 'application/json';
+    const body = await response.text();
+    res.setHeader('Content-Type', contentType);
+    res.setHeader('Cache-Control', 'public, max-age=1800');
+    res.status(200).send(body);
+  } catch (err) {
+    res.status(502).json({ error: 'Fetch failed', detail: err.message });
+  }
+};
