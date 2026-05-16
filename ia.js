@@ -1,7 +1,6 @@
 
 // ===== STATE =====
 let allJobs = [];
-let filteredJobs = [];
 let savedJobs = new Set();
 // ===== CANDIDATURAS TRACKING =====
 // Cada candidatura: { id, job, status, appliedAt, updatedAt, feedback, companyNotified }
@@ -51,10 +50,10 @@ function toggleTheme() {
 
 // ===== STRIPE =====
 const STRIPE_LINKS = {
-  junior: '7sY00je0McgW2v4cnl8ww00',
-  pleno:  '28E14naOAcgWfhQ1IH8ww01',
-  senior: '5kQ00jg8Uft83z81IH8ww02',
-  master: '5kQ28raOA94K1r0bjh8ww03'
+  junior: 'LINK_JUNIOR',
+  pleno:  'LINK_PLENO',
+  senior: 'LINK_SENIOR',
+  master: 'LINK_MASTER'
 };
 function stripeClick(plan) {
   sessionStorage.setItem('pendingPlan', plan);
@@ -214,64 +213,31 @@ window.addEventListener('load', () => {
 
 // ===== INIT =====
 window.addEventListener('load', () => {
-  loadJobs('');
-  if(typeof initSupabase === 'function') initSupabase();
-  if(typeof aplicarMobile === 'function') aplicarMobile();
-  if(typeof configurarContato === 'function') configurarContato('remot3br@gmail.com');
+  // loadJobs called at end of script with initSupabase
 });
-
-
-// ===== ASHBY API =====
-const ASHBY_COMPANIES = [
-  'anthropic','openai','scale','cohere','huggingface',
-  'replit','retool','webflow','airtable','coda',
-  'dbt-labs','airbyte','amplitude','brex','mercury'
-];
-
-async function fetchAshby() {
-  const jobs = [];
-  const results = await Promise.allSettled(
-    ASHBY_COMPANIES.map(async company => {
-      const url = `https://api.ashbyhq.com/posting-public/job-board/${company}`;
-      const res = await corsGet(url);
-      if(!res || !res.ok) return [];
-      const data = await res.json();
-      return (data.jobPostings || [])
-        .filter(j => j.isRemote || /remote/i.test(j.location || ''))
-        .map(j => ({
-          id: 'ash_' + j.id,
-          title: j.title,
-          company_name: j.departmentName ? company.charAt(0).toUpperCase() + company.slice(1) : company,
-          url: j.jobUrl || `https://jobs.ashbyhq.com/${company}/${j.id}`,
-          description: j.descriptionPlain || j.description || '',
-          publication_date: j.publishedAt || new Date().toISOString(),
-          candidate_required_location: j.location || 'Remote',
-          salary: '',
-          _source: 'Ashby',
-          _ats: 'ashby'
-        }));
-    })
-  );
-  results.forEach(r => { if(r.status === 'fulfilled') jobs.push(...r.value); });
-  return jobs;
-}
 
 // ===== FONTES DE VAGAS =====
 let fonteAtual = 'all';
 
 const LEVER_COMPANIES = [
-  'linear','rippling','lattice','miro','remote'
+  'gitlab','netflix','shopify','stripe','figma','notion','linear',
+  'vercel','railway','planetscale','supabase','loom','miro',
+  'remote','deel','rippling','lattice','mercury','brex'
 ];
 
 const GREENHOUSE_COMPANIES = [
-  { token:'gitlab',     name:'GitLab'     },
+  { token:'gitlab', name:'GitLab' },
+  { token:'shopify', name:'Shopify' },
   { token:'automattic', name:'Automattic' },
-  { token:'elastic',    name:'Elastic'    },
-  { token:'cloudflare', name:'Cloudflare' },
-  { token:'mongodb',    name:'MongoDB'    },
+  { token:'buffer', name:'Buffer' },
+  { token:'zapier', name:'Zapier' },
+  { token:'basecamp', name:'Basecamp' },
+  { token:'duckduckgo', name:'DuckDuckGo' },
+  { token:'close', name:'Close' },
+  { token:'invision', name:'InVision' }
 ];
 
-function selecionarFonte(fonte, el) {
+function trocarFonte(fonte, el) {
   fonteAtual = fonte;
   document.querySelectorAll('[id^="src-"]').forEach(b => b.classList.remove('active'));
   el.classList.add('active');
@@ -332,11 +298,10 @@ async function loadJobs(category) {
       ...j,
       matchScore: userProfile.cvLoaded ? Math.floor(Math.random()*25+70) : null
     }));
-    filteredJobs = allJobs;
     renderJobs(allJobs);
-    try { updateStats(); } catch(e) {}
-    try { verificarIdadeVagas(); } catch(e) {}
-    try { updateSourceStatus(); } catch(e) {}
+    updateStats();
+    verificarIdadeVagas();
+    updateSourceStatus();
     if(failed > 0 && loaded > 0) {
       showToast(`✓ ${loaded} fonte${loaded>1?'s':''} carregada${loaded>1?'s':''} · ${failed} indisponível${failed>1?'s':''} agora`);
     }
@@ -351,20 +316,15 @@ async function loadJobs(category) {
 const sourceStatus = {}; // tracks which sources loaded: '✓' or '✗'
 
 async function corsGet(url, sourceName = '') {
-  // Try proxy — works on both Netlify (/api/proxy) and Vercel (/api/proxy)
-  const proxyPaths = ['/api/proxy', '/api/proxy'];
-  for (const path of proxyPaths) {
-    try {
-      const proxyUrl = path + '?url=' + encodeURIComponent(url);
-      const res = await fetch(proxyUrl, { signal: AbortSignal.timeout(12000) });
-      if (res.ok) {
-        if (sourceName) sourceStatus[sourceName] = '✓';
-        return res;
-      }
-    } catch {}
-  }
-  // fallback below...
-  try { const x = null; } catch {}
+  // 1. Netlify own proxy — roda no servidor, sem CORS
+  try {
+    const proxyUrl = `/api/proxy?url=${encodeURIComponent(url)}`;
+    const res = await fetch(proxyUrl, { signal: AbortSignal.timeout(12000) });
+    if (res.ok) {
+      if (sourceName) sourceStatus[sourceName] = '✓';
+      return res;
+    }
+  } catch {}
 
   // 2. Acesso direto — funciona para Lever e Greenhouse que têm CORS aberto
   try {
@@ -706,7 +666,7 @@ function renderJobs(jobs) {
     // Salary highlight — show prominently if available
     const salDisplay = j.salary ? `<span class="jc-mi sal">💵 ${j.salary}</span>` : '';
 
-    return `<div class="job-card" id="jc-${j.id}" onclick="toggleJob('${j.id}')">
+    return `<div class="job-card" id="jc-${j.id}" onclick="toggleJob(${j.id})">
       <div class="jc-main">
         <div class="job-logo">${logoHtml}</div>
         <div class="jc-body">
@@ -733,7 +693,7 @@ function renderJobs(jobs) {
         </div>
         <div class="jc-right">
           ${matchHtml}
-          <button class="jc-save" onclick="event.stopPropagation();toggleSave('${j.id}')" id="save-${j.id}">${savedIcon}</button>
+          <button class="jc-save" onclick="event.stopPropagation();toggleSave(${j.id})" id="save-${j.id}">${savedIcon}</button>
         </div>
       </div>
       <div class="job-expanded" id="je-${j.id}">
@@ -766,10 +726,10 @@ function renderJobs(jobs) {
             <div style="font-size:11px;color:var(--muted)">Aumente suas chances de entrevista antes de aplicar</div>
           </div>
           <div style="display:flex;gap:6px;flex-wrap:wrap">
-            <button class="jc-tool" onclick="event.stopPropagation();abrirFerramenta('ats','${j.id}')" style="font-size:12px;padding:5px 12px">🎯 Analisar ATS</button>
-            <button class="jc-tool" onclick="event.stopPropagation();abrirFerramenta('otimizar','${j.id}')" style="font-size:12px;padding:5px 12px">📝 Otimizar CV</button>
-            <button class="jc-tool" onclick="event.stopPropagation();abrirFerramenta('coverLetter','${j.id}')" style="font-size:12px;padding:5px 12px">✉️ Cover letter</button>
-            <button class="jc-tool" id="trad-${j.id}" onclick="event.stopPropagation();traduzirVaga('${j.id}')" style="font-size:12px;padding:5px 12px">🌐 Traduzir PT</button>
+            <button class="jc-tool" onclick="event.stopPropagation();abrirFerramenta('ats',${j.id})" style="font-size:12px;padding:5px 12px">🎯 Analisar ATS</button>
+            <button class="jc-tool" onclick="event.stopPropagation();abrirFerramenta('otimizar',${j.id})" style="font-size:12px;padding:5px 12px">📝 Otimizar CV</button>
+            <button class="jc-tool" onclick="event.stopPropagation();abrirFerramenta('coverLetter',${j.id})" style="font-size:12px;padding:5px 12px">✉️ Cover letter</button>
+            <button class="jc-tool" id="trad-${j.id}" onclick="event.stopPropagation();traduzirVaga(${j.id})" style="font-size:12px;padding:5px 12px">🌐 Traduzir PT</button>
           </div>
         </div>
 
@@ -790,9 +750,9 @@ function renderJobs(jobs) {
         <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px;margin-top:16px;padding-top:14px;border-top:0.5px solid var(--border)">
           <div style="font-size:11px;color:var(--muted2)">via ${j._source||'Remotive'} · ${timeAgo(j.publication_date)}</div>
           <div style="display:flex;gap:8px;align-items:center">
-            <button class="jc-save" onclick="event.stopPropagation();toggleSave('${j.id}')" id="save-${j.id}" style="padding:6px 12px;font-size:12px">${savedJobs.has(j.id)?'⭐ Salvo':'☆ Salvar'}</button>
+            <button class="jc-save" onclick="event.stopPropagation();toggleSave(${j.id})" id="save-${j.id}" style="padding:6px 12px;font-size:12px">${savedJobs.has(j.id)?'⭐ Salvo':'☆ Salvar'}</button>
             <a class="btn-apply ${isApplied?'applied':''}" href="${j.url}" target="_blank"
-              onclick="event.preventDefault();event.stopPropagation();abrirCandidatura('${j.id}')"
+              onclick="event.preventDefault();event.stopPropagation();abrirCandidatura(${j.id})"
               id="apply-${j.id}" style="font-size:14px;padding:10px 24px">${isApplied ? '✓ Aplicado' : 'Apply Now ↗'}</a>
           </div>
         </div>
@@ -802,16 +762,14 @@ function renderJobs(jobs) {
 }
 
 function toggleJob(id) {
-  try {
-    const card = document.getElementById('jc-' + id);
-    if(!card) return;
-    const wasExpanded = card.classList.contains('expanded');
-    document.querySelectorAll('.job-card.expanded').forEach(c => c.classList.remove('expanded'));
-    if(!wasExpanded) {
-      card.classList.add('expanded');
-      setTimeout(() => card.scrollIntoView({ behavior:'smooth', block:'nearest' }), 50);
-    }
-  } catch(e) { console.error('toggleJob:', e); }
+  const card = document.getElementById(`jc-${id}`);
+  const wasExpanded = card.classList.contains('expanded');
+  document.querySelectorAll('.job-card.expanded').forEach(c => c.classList.remove('expanded'));
+  if(!wasExpanded) {
+    card.classList.add('expanded');
+    if(!aiCache[id]) analyzeJob(id);
+    else document.getElementById(`ai-${id}`).textContent = aiCache[id];
+  }
 }
 
 // ===== FILTRO DADOS SENSÍVEIS (LGPD) =====
@@ -843,23 +801,6 @@ async function chamarIA(mensagens, sistema) {
   if (!res.ok) throw new Error(data.error || 'Erro na IA');
   return data.choices?.[0]?.message?.content || '';
 }
-function solicitarAnaliseIA(id) {
-  // Only for paid plans
-  if(!userProfile.plan) {
-    showPaywall('junior');
-    return;
-  }
-  const box = document.getElementById('ai-box-' + id);
-  const el  = document.getElementById('ai-' + id);
-  const btn = document.getElementById('ai-btn-' + id);
-  if(!box || !el) return;
-  box.style.display = 'block';
-  if(btn) btn.style.display = 'none';
-  if(aiCache[id]) { el.innerHTML = aiCache[id]; return; }
-  el.innerHTML = '<div class="ai-loading"><span></span><span></span><span></span>&nbsp; Analisando vaga...</div>';
-  analyzeJob(id);
-}
-
 async function analyzeJob(id) {
   const job = allJobs.find(j => j.id === id);
   if(!job) return;
@@ -876,7 +817,9 @@ async function analyzeJob(id) {
       `<div style="margin-bottom:${i<2?'6px':'0'}">${l}</div>`
     ).join('');
   } catch(e) {
-    el.textContent = 'Análise de IA indisponível no momento.';
+    el.textContent = OR_KEY === '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'
+      ? '⚠️ Insira sua chave OpenRouter no código para ativar a IA.'
+      : 'Análise de IA indisponível no momento.';
   }
 }
 
@@ -1087,34 +1030,25 @@ let traducaoCache = {};
 async function traduzirVaga(jobId) {
   const job = allJobs.find(j => j.id === jobId);
   if(!job) return;
-  const btn = document.getElementById('trad-' + jobId);
-  const descEl = document.getElementById('jdesc-' + jobId);
+  const btn = document.getElementById(`trad-${jobId}`);
   if(btn) btn.textContent = '⏳';
 
   if(traducaoCache[jobId]) {
-    if(descEl) descEl.innerHTML = traducaoCache[jobId];
+    document.getElementById(`jdesc-${jobId}`).innerHTML = traducaoCache[jobId];
     if(btn) btn.textContent = '🇧🇷 PT';
     return;
   }
-
   try {
-    // Google Translate via proxy — sem IA, sem custo
-    const texto = stripHtml(job.description || '').slice(0, 2000);
-    const gtUrl = 'https://translate.googleapis.com/translate_a/single?client=gtx&sl=en&tl=pt&dt=t&q=' + encodeURIComponent(texto);
-    const proxyUrl = '/api/proxy?url=' + encodeURIComponent(gtUrl);
-    const res = await fetch(proxyUrl, { signal: AbortSignal.timeout(10000) });
-    if(!res.ok) throw new Error('proxy failed');
-    const data = await res.json();
-    const traduzido = data[0].map(chunk => chunk[0]).join('');
-    const html = '<div style="font-size:15px;color:var(--text);line-height:1.8;word-break:break-word">'
-      + traduzido.split('\n').filter(Boolean).map(p => '<p style="margin-bottom:10px">' + p + '</p>').join('')
-      + '</div>';
+    const texto = filtrarDadosSensiveis(stripHtml(job.description||'').slice(0, 1200));
+    const prompt = `Traduza o seguinte texto de uma vaga de emprego para o português brasileiro. Mantenha a estrutura e os termos técnicos reconhecíveis. Retorne apenas a tradução, sem comentários:\n\n${texto}`;
+    const traduzido = await chamarIA([{ role:'user', content: prompt }]);
+    const html = '<div style="font-size:13px;color:var(--muted);line-height:1.7;padding:4px 0">' + traduzido.replace(/\n/g,'<br>') + '</div>';
     traducaoCache[jobId] = html;
-    if(descEl) descEl.innerHTML = html;
+    document.getElementById(`jdesc-${jobId}`).innerHTML = html;
     if(btn) btn.textContent = '🇧🇷 PT';
-  } catch(e) {
+  } catch {
     if(btn) btn.textContent = '🌐 EN';
-    showToast('Erro ao traduzir. Verifique sua conexão.');
+    showToast('Erro ao traduzir. Tente novamente.');
   }
 }
 
@@ -1758,7 +1692,7 @@ const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZ
 // Inicializa o cliente Supabase (carregado via CDN no head)
 let sbClient = null;
 function initSupabase() {
-  if(typeof window.supabase !== 'undefined') {
+  if(typeof window.supabase !== 'undefined' && SUPABASE_URL !== 'https://uonupjxxrvzgwtodpsfp.supabase.co') {
     sbClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
     checkSession();
   }
