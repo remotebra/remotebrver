@@ -1,5 +1,6 @@
-const GROQ_KEY = process.env.GROQ_KEY || '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';
-const GROQ_MODEL = 'llama-3.3-70b-versatile';
+
+const GEMINI_KEY = process.env.GEMINI_KEY || 'AIzaSyDMA1E8KOr1qFBHu_DuR83SbxbIbRw22O0';
+const GEMINI_MODEL = 'gemini-2.0-flash';
 
 module.exports = async function handler(req, res) {
   res.setHeader('Access-Control-Allow-Origin', '*');
@@ -11,20 +12,17 @@ module.exports = async function handler(req, res) {
     const { messages, max_tokens = 800 } = req.body || {};
     if (!messages) return res.status(400).json({ error: 'Missing messages' });
 
-    const response = await fetch('https://api.groq.com/openai/v1/chat/completions', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${GROQ_KEY}`,
-      },
-      body: JSON.stringify({ model: GROQ_MODEL, messages, max_tokens, temperature: 0.7 }),
-      signal: AbortSignal.timeout(30000),
-    });
-
-    const data = await response.json();
-    if (!response.ok) return res.status(response.status).json({ error: data.error?.message || 'Groq error' });
-    res.status(200).json(data);
-  } catch (err) {
-    res.status(502).json({ error: 'IA indisponivel', detail: err.message });
-  }
-};
+    // Converte formato OpenAI → Gemini
+    const contents = [];
+    for (const m of messages) {
+      if (m.role === 'system') {
+        // Gemini não tem role "system" — injeta como primeiro turno user/model
+        contents.push({ role: 'user', parts: [{ text: m.content }] });
+        contents.push({ role: 'model', parts: [{ text: 'Entendido. Vou seguir essas instruções.' }] });
+      } else {
+        contents.push({
+          role: m.role === 'assistant' ? 'model' : 'user',
+          parts: [{ text: m.content }]
+        });
+      }
+    };
