@@ -1,0 +1,5 @@
+{
+  "name": "remotebr",
+  "version": "1.0.0",
+  "engines": { "node": "22.x" }
+}
