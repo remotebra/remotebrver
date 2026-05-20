@@ -821,18 +821,14 @@ function carregarAnaliseIA(id) {
   if(!el) return;
   if(el.dataset.loaded) return;
   el.dataset.loaded = 'true';
-
   el.innerHTML = '<div class="ai-loading"><span></span><span></span><span></span>&nbsp; Analisando vaga...</div>';
-
   if(aiCache[id]) {
     el.innerHTML = aiCache[id].split('\n').filter(Boolean).map((l, i) =>
       `<div style="margin-bottom:${i < 2 ? '6px' : '0'}">${l}</div>`
     ).join('');
     return;
   }
-setTimeout(() => analyzeJob(id), 800);
-}
-  analyzeJob(id);
+  setTimeout(() => analyzeJob(id), 800);
 }
 async function analyzeJob(id) {
   const job = allJobs.find(j => j.id === id);
