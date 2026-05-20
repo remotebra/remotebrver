@@ -816,6 +816,9 @@ async function chamarIA(mensagens, sistema) {
   if (!res.ok) throw new Error(data.error || 'Erro na IA');
   return data.choices?.[0]?.message?.content || '';
 }
+const iaQueue = [];
+let iaProcessing = false;
+
 function carregarAnaliseIA(id) {
   const el = document.getElementById('ai-' + id);
   if(!el) return;
@@ -828,7 +831,20 @@ function carregarAnaliseIA(id) {
     ).join('');
     return;
   }
-  setTimeout(() => analyzeJob(id), 800);
+  iaQueue.push(id);
+  processIaQueue();
+}
+
+function processIaQueue() {
+  if(iaProcessing || iaQueue.length === 0) return;
+  iaProcessing = true;
+  const id = iaQueue.shift();
+  analyzeJob(id).finally(() => {
+    setTimeout(() => {
+      iaProcessing = false;
+      processIaQueue();
+    }, 5000);
+  });
 }
 async function analyzeJob(id) {
   const job = allJobs.find(j => j.id === id);
