@@ -747,8 +747,10 @@ function renderJobs(jobs) {
         <div class="ai-analysis">
           <div class="ai-header"><span class="ai-dot"></span>Análise IA — em português</div>
           <div class="ai-text" id="ai-${j.id}">
-            <div class="ai-loading"><span></span><span></span><span></span>&nbsp; Analisando vaga...</div>
-          </div>
+  <div style="font-size:13px;color:var(--muted);cursor:pointer" onclick="event.stopPropagation();carregarAnaliseIA('${j.id}')">
+    ✦ Clique para analisar com IA
+  </div>
+</div>
         </div>
 
         <!-- Structured description -->
