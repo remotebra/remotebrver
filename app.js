@@ -830,7 +830,8 @@ function carregarAnaliseIA(id) {
     ).join('');
     return;
   }
-
+setTimeout(() => analyzeJob(id), 800);
+}
   analyzeJob(id);
 }
 async function analyzeJob(id) {
