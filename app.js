@@ -782,6 +782,7 @@ function toggleJob(id) {
     if(!wasExpanded) {
       card.classList.add('expanded');
       setTimeout(() => card.scrollIntoView({ behavior:'smooth', block:'nearest' }), 50);
+      carregarAnaliseIA(id);
     }
   } catch(e) { console.error('toggleJob:', e); }
 }
