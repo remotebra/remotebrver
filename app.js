@@ -1042,25 +1042,28 @@ let traducaoCache = {};
 async function traduzirVaga(jobId) {
   const job = allJobs.find(j => j.id === jobId);
   if(!job) return;
-  const btn = document.getElementById(`trad-${jobId}`);
+  const btn = document.getElementById('trad-' + jobId);
+  const descEl = document.getElementById('jdesc-' + jobId);
   if(btn) btn.textContent = '⏳';
-
   if(traducaoCache[jobId]) {
-    document.getElementById(`jdesc-${jobId}`).innerHTML = traducaoCache[jobId];
+    if(descEl) descEl.innerHTML = traducaoCache[jobId];
     if(btn) btn.textContent = '🇧🇷 PT';
     return;
   }
   try {
-    const texto = filtrarDadosSensiveis(stripHtml(job.description||'').slice(0, 1200));
-    const prompt = `Traduza o seguinte texto de uma vaga de emprego para o português brasileiro. Mantenha a estrutura e os termos técnicos reconhecíveis. Retorne apenas a tradução, sem comentários:\n\n${texto}`;
-    const traduzido = await chamarIA([{ role:'user', content: prompt }]);
-    const html = '<div style="font-size:13px;color:var(--muted);line-height:1.7;padding:4px 0">' + traduzido.replace(/\n/g,'<br>') + '</div>';
+    const texto = stripHtml(job.description || '').slice(0, 2000);
+    const gtUrl = 'https://translate.googleapis.com/translate_a/single?client=gtx&sl=en&tl=pt&dt=t&q=' + encodeURIComponent(texto);
+    const res = await fetch('/api/proxy?url=' + encodeURIComponent(gtUrl), { signal: AbortSignal.timeout(10000) });
+    if(!res.ok) throw new Error('failed');
+    const data = await res.json();
+    const traduzido = data[0].map(c => c[0]).join('');
+    const html = '<p style="font-size:15px;line-height:1.8;color:var(--text)">' + traduzido.replace(/\n/g,'</p><p style="font-size:15px;line-height:1.8;color:var(--text);margin-top:10px">') + '</p>';
     traducaoCache[jobId] = html;
-    document.getElementById(`jdesc-${jobId}`).innerHTML = html;
+    if(descEl) descEl.innerHTML = html;
     if(btn) btn.textContent = '🇧🇷 PT';
-  } catch {
+  } catch(e) {
     if(btn) btn.textContent = '🌐 EN';
-    showToast('Erro ao traduzir. Tente novamente.');
+    showToast('Erro ao traduzir.');
   }
 }
 
