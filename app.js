@@ -895,7 +895,7 @@ function markApplied(id) {
 function agendarNotificacoes(id) {
   // Produção: esses eventos seriam disparados por cron job no Supabase (1x por semana)
   // Demo: tempos comprimidos para teste visual — 15s=7d, 30s=14d, 45s=25d, 60s=45d
-  const DEMO_MODE = true;
+  const DEMO_MODE = false;
   const t7d  = DEMO_MODE ? 15000  : 7  * 86400000;
   const t14d = DEMO_MODE ? 30000  : 14 * 86400000;
   const t25d = DEMO_MODE ? 45000  : 25 * 86400000;
