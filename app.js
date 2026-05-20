@@ -816,6 +816,23 @@ async function chamarIA(mensagens, sistema) {
   if (!res.ok) throw new Error(data.error || 'Erro na IA');
   return data.choices?.[0]?.message?.content || '';
 }
+function carregarAnaliseIA(id) {
+  const el = document.getElementById('ai-' + id);
+  if(!el) return;
+  if(el.dataset.loaded) return;
+  el.dataset.loaded = 'true';
+
+  el.innerHTML = '<div class="ai-loading"><span></span><span></span><span></span>&nbsp; Analisando vaga...</div>';
+
+  if(aiCache[id]) {
+    el.innerHTML = aiCache[id].split('\n').filter(Boolean).map((l, i) =>
+      `<div style="margin-bottom:${i < 2 ? '6px' : '0'}">${l}</div>`
+    ).join('');
+    return;
+  }
+
+  analyzeJob(id);
+}
 async function analyzeJob(id) {
   const job = allJobs.find(j => j.id === id);
   if(!job) return;
