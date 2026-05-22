@@ -974,18 +974,23 @@ async function gerarFeedbackIA(id) {
   try {
     const cvTexto = userProfile.cvProfissional || 'Currículo não carregado';
     const descVaga = filtrarDadosSensiveis(stripHtml(c.job.description||'').slice(0,500));
-    const prompt = `Você é um coach de carreira brasileiro especialista em vagas internacionais.
-Um candidato aplicou para a vaga "${c.job.title}" na empresa "${c.job.company_name}" há 25 dias e não recebeu resposta.
+    const prompt = `Você é um recrutador sênior americano com 15 anos de experiência em empresas de tecnologia. Você já esteve dos dois lados — como candidato e como quem contrata. Você sabe exatamente por que currículos são ignorados e o que faz a diferença.
 
-Perfil do candidato: ${cvTexto.slice(0,600)}
-Descrição da vaga: ${descVaga}
+Um candidato brasileiro aplicou para a vaga abaixo há 25 dias e não recebeu nenhuma resposta. Isso é comum — a taxa média de resposta em vagas internacionais é de 10 a 20%. Mas há sempre algo a melhorar.
 
-Escreva um feedback construtivo em português com exatamente 3 parágrafos curtos, sem títulos, sem asteriscos:
-1. Um ponto forte do perfil para esta vaga específica
-2. O que pode ter faltado ou pode ser melhorado no currículo para esta vaga
-3. Uma ação concreta e específica para as próximas candidaturas similares
+Dê um feedback honesto, direto e construtivo em português. Sem sugarcoating, sem frases motivacionais vazias. O candidato quer saber a verdade.
 
-Seja direto, encorajador e específico. Máximo de 3 linhas por parágrafo.`;
+VAGA: "${c.job.title}" em "${c.job.company_name}"
+DESCRIÇÃO DA VAGA: ${descVaga}
+PERFIL DO CANDIDATO: ${cvTexto.slice(0,600)}
+
+Responda em exatamente 3 parágrafos curtos, sem títulos, sem asteriscos, sem markdown:
+
+Parágrafo 1 — Diagnóstico honesto: por que provavelmente não houve resposta? Seja específico — analise o fit entre o perfil e a vaga. Se o perfil é forte para esta vaga, diga. Se não é, diga também.
+
+Parágrafo 2 — O que mudar no currículo: uma mudança específica e concreta que aumentaria significativamente as chances nesta vaga. Não "melhore as palavras-chave" — diga QUAIS palavras-chave, ONDE inserir, COMO reformular.
+
+Parágrafo 3 — Próximo passo concreto: uma ação específica para as próximas 48 horas que aumenta as chances de resposta. Pode ser um follow-up, uma otimização, uma vaga alternativa mais adequada ao perfil atual.`;
 
     const feedback = await chamarIA([{ role:'user', content: prompt }]);
     c.feedback = feedback;
