@@ -2453,25 +2453,32 @@ async function sendEnglishTest() {
 
 async function avaliarIngles() {
   const respostas = etHistory.map((h,i) => `Q${i+1}: "${h.q}"\nA: "${h.a}"`).join('\n\n');
-  const prompt = `Você é avaliador de inglês para brasileiros buscando emprego internacional.
-Avalie as 3 respostas abaixo e dê feedback em PORTUGUÊS.
+ const prompt = `Você é um recrutador americano sênior que entrevistou mais de 2.000 candidatos internacionais para empresas de tecnologia. Você sabe exatamente qual nível de inglês é necessário para passar em cada etapa do processo seletivo americano.
+
+Avalie o inglês deste candidato brasileiro com o mesmo rigor que um recrutador real usaria. Seja honesto — um feedback falso positivo prejudica o candidato.
+
+RESPOSTAS DO CANDIDATO:
 ${respostas}
 
-Responda EXATAMENTE assim (sem asteriscos, sem markdown):
+Responda EXATAMENTE neste formato, sem asteriscos, sem markdown:
+
 NÍVEL: [A2 / B1 / B2 / C1]
 NOTA: [X/10]
 
+PASSARIA NO SCREENING DE INGLÊS: SIM ou NÃO
+(explique em 1 linha o motivo principal)
+
 PONTOS FORTES:
-[2-3 aspectos positivos]
+(2-3 aspectos positivos específicos — cite exemplos reais das respostas do candidato)
 
-PONTOS A MELHORAR:
-[2-3 problemas encontrados]
+PROBLEMAS QUE ELIMINAM EM ENTREVISTA:
+(seja brutalmente honesto — erros gramaticais graves, vocabulário limitado, estrutura confusa. Cite exemplos específicos das respostas)
 
-VEREDICTO:
-[1 parágrafo — conseguiria uma entrevista com empresa americana?]
+VEREDICTO REAL:
+(1 parágrafo — seria contratado por uma empresa americana com esse nível? Para que tipo de empresa/cargo esse inglês é suficiente hoje? Seja específico)
 
-PRÓXIMOS PASSOS:
-[3 ações concretas para as próximas semanas]`;
+PLANO DE 30 DIAS:
+(3 ações concretas e específicas para melhorar o nível em 30 dias. Não "pratique mais" — diga exatamente O QUE fazer, QUANTO tempo por dia e COMO medir o progresso)`;
   try {
     const resultado = await chamarIA([{ role:'user', content: prompt }]);
     document.getElementById('englishTestChat').innerHTML = '';
