@@ -862,7 +862,18 @@ async function analyzeJob(id) {
     ? `O candidato é brasileiro com perfil em ${filtrarDadosSensiveis(userProfile.title)}.`
     : 'O candidato é brasileiro buscando emprego internacional remoto.';
   try {
-    const prompt = `Analise esta vaga para um brasileiro buscando emprego remoto internacional. Responda em 3 linhas diretas em português, separadas por quebra de linha. Sem títulos, sem markdown, sem asteriscos.\n\nVaga: "${job.title}" em "${job.company_name}"\nDescrição: ${desc}\n${profile}\n\n1. O que a empresa busca (1 linha)\n2. Por que um brasileiro se destacaria nessa vaga (1 linha)\n3. Ponto de atenção ou dica de candidatura (1 linha)`;
+   const prompt = `Você é um recrutador sênior americano com 15 anos de experiência contratando para empresas de tecnologia. Você conhece profundamente o que diferencia candidatos brasileiros que conseguem a vaga dos que são ignorados.
+
+Analise esta vaga e dê um briefing honesto e direto para o candidato brasileiro. Responda em português, sem asteriscos, sem markdown, exatamente em 4 linhas separadas por quebra de linha:
+
+Linha 1 — O que a empresa REALMENTE busca: vá além do óbvio da descrição. Qual é o problema que eles precisam resolver? Que tipo de pessoa vai se destacar nessa cultura?
+Linha 2 — Nível de dificuldade para brasileiros: é acessível, médio ou difícil? Por quê? Há algum requisito que elimina a maioria dos candidatos brasileiros?
+Linha 3 — Vantagem competitiva brasileira: por que um brasileiro pode se destacar NESSA vaga específica? Seja concreto — não genérico.
+Linha 4 — Dica de ouro: uma ação específica e concreta que aumenta significativamente a chance de chamarem para entrevista. Algo que poucos candidatos fazem.
+
+VAGA: "${job.title}" em "${job.company_name}"
+DESCRIÇÃO: ${desc}
+${profile}`;
     const text = await chamarIA([{ role: 'user', content: prompt }]);
     aiCache[id] = text;
     el.innerHTML = text.split('\n').filter(Boolean).map((l,i) =>
