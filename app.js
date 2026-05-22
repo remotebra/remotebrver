@@ -1531,19 +1531,29 @@ function updateStats() {
 async function gerarCoverLetter(job) {
   if(!userProfile.cvLoaded) { showToast('Faça upload do seu currículo primeiro 📄'); return null; }
   const dp = userProfile.dadosPessoais;
-  const prompt = `Você é especialista em carreira internacional para brasileiros.
-Escreva uma cover letter em INGLÊS para esta vaga. Tom profissional, direto, 3 parágrafos.
-Inclua contexto positivo sobre contratar um profissional brasileiro remoto.
-Finalize com os dados de contato do candidato.
+  const prompt = `You are a senior career coach specializing in helping Brazilian professionals land jobs at American and European companies. You have helped hundreds of Brazilians get hired at companies like Stripe, GitLab, Shopify, and top Y Combinator startups.
 
-VAGA: ${job.title} em ${job.company_name}
-DESCRIÇÃO: ${filtrarDadosSensiveis(stripHtml(job.description).slice(0, 400))}
-PERFIL: ${userProfile.cvProfissional.slice(0, 800)}
-NOME: ${dp.nomeCompleto || 'Candidato'}
-EMAIL: ${dp.email || '[seu email]'}
-LINKEDIN: ${dp.linkedin || '[seu linkedin]'}
+Write a cover letter in English for the job below. Follow these rules used by the best candidates who actually get interviews:
 
-Retorne apenas o texto da cover letter, pronto para enviar.`;
+RULES:
+- Never start with "I am writing to apply" — it is the most overused opener and gets ignored
+- Open with a specific hook: a result you achieved, a problem you solved, or something specific about the company that genuinely excites you
+- Paragraph 1 (3-4 lines): The hook + who you are in one powerful sentence
+- Paragraph 2 (4-5 lines): Your 2-3 most relevant achievements with numbers. Connect them directly to what the job description asks for. Be specific — "increased conversion by 34%" not "improved metrics"
+- Paragraph 3 (3-4 lines): Why THIS company specifically. Show you did research. Mention something real about their product, mission or culture — not generic praise
+- Closing (2 lines): Confident call to action, not desperate. "I would love to discuss how I can contribute to X" not "I hope to hear from you"
+- Tone: confident, direct, human — sounds like a real person wrote it, not AI
+- Length: maximum 250 words — American recruiters spend 30 seconds on cover letters
+- End with full contact details
+
+JOB: ${job.title} at ${job.company_name}
+JOB DESCRIPTION: ${filtrarDadosSensiveis(stripHtml(job.description).slice(0, 400))}
+CANDIDATE PROFILE: ${userProfile.cvProfissional.slice(0, 800)}
+NAME: ${dp.nomeCompleto || 'Candidate'}
+EMAIL: ${dp.email || '[your email]'}
+LINKEDIN: ${dp.linkedin || '[your linkedin]'}
+
+Return ONLY the cover letter text, ready to send. No explanations, no subject line.`;
   return await chamarIA([{ role: 'user', content: prompt }]);
 }
 
