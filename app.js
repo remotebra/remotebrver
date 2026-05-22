@@ -823,6 +823,13 @@ function carregarAnaliseIA(id) {
   const el = document.getElementById('ai-' + id);
   if(!el) return;
   if(el.dataset.loaded) return;
+  
+  // Só analisa se usuário tiver plano
+  if(!userProfile.plan) {
+    el.innerHTML = '<div style="font-size:12px;color:var(--muted);cursor:pointer" onclick="showPaywall(\'junior\')">✦ Faça upgrade para ver análise IA desta vaga</div>';
+    el.dataset.loaded = 'true';
+    return;
+  }
   el.dataset.loaded = 'true';
   el.innerHTML = '<div class="ai-loading"><span></span><span></span><span></span>&nbsp; Analisando vaga...</div>';
   if(aiCache[id]) {
