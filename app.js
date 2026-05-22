@@ -1479,18 +1479,26 @@ async function otimizarCurriculo(vaga) {
 
   try {
     // Envia APENAS texto profissional para IA — sem dados pessoais
-    const prompt = `Você é um especialista em currículos para o mercado internacional.
-Otimize este currículo para a vaga abaixo. Reescreva apenas o conteúdo profissional.
-Use palavras-chave da vaga. Formato ATS-friendly. Responda em português.
-NÃO inclua dados pessoais — eles serão reinseridos automaticamente.
+    const prompt = `Você é um especialista sênior em recrutamento internacional que já revisou mais de 5.000 currículos para empresas americanas como Google, Stripe, Shopify e startups do Y Combinator. Você sabe exatamente o que recrutadores americanos querem ver e o que faz um currículo brasileiro se destacar no mercado internacional.
 
-VAGA: ${vaga.title} em ${vaga.company_name}
-REQUISITOS: ${filtrarDadosSensiveis(stripHtml(vaga.description).slice(0,400))}
+Reescreva este currículo para maximizar as chances de aprovação na vaga abaixo. Siga rigorosamente estas regras do mercado americano:
 
-CURRÍCULO ATUAL (conteúdo profissional):
+REGRAS OBRIGATÓRIAS:
+- Sem foto, sem data de nascimento, sem estado civil, sem CPF
+- Cada experiência deve ter bullets com RESULTADO QUANTIFICADO: "Reduzi o tempo de deploy em 60%" não "Responsável pelo deploy"
+- Use os verbos de ação que recrutadores americanos amam: Led, Built, Drove, Launched, Optimized, Scaled, Delivered, Reduced, Increased
+- Insira naturalmente as palavras-chave da vaga — o ATS precisa encontrá-las
+- Formato linear sem tabelas ou colunas — ATS não lê tabelas
+- Summary no topo: 3 linhas máximo, direto ao ponto, com as 3 principais qualificações para ESTA vaga específica
+- Máximo 2 páginas
+
+VAGA ALVO: ${vaga.title} em ${vaga.company_name}
+REQUISITOS DA VAGA: ${filtrarDadosSensiveis(stripHtml(vaga.description).slice(0,400))}
+
+CURRÍCULO ATUAL:
 ${userProfile.cvProfissional.slice(0, 1500)}
 
-Retorne APENAS o conteúdo profissional otimizado, sem cabeçalho de dados pessoais.`;
+Retorne APENAS o conteúdo profissional reescrito, sem dados pessoais, pronto para copiar e colar. Comece direto pelo Summary profissional.`;
 
     const cvOtimizadoProfissional = await chamarIA([{ role: 'user', content: prompt }]);
 
