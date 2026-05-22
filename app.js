@@ -3111,17 +3111,22 @@ async function enviarDuvidaMaster() {
   document.getElementById('masterDuvidaLoading').style.display = 'block';
   if(input) input.style.display = 'none';
 
-  const prompt = `Você é um coach de carreiras internacionais especialista em ajudar brasileiros a conseguir vagas remotas em empresas americanas e europeias.
+  const prompt = `Você é um coach de carreira internacional com 15 anos de experiência ajudando brasileiros a conseguir vagas em empresas americanas e europeias. Você já acompanhou centenas de processos seletivos e conhece os padrões de erro mais comuns.
 
-Um candidato do plano Master tem a seguinte dúvida após uma entrevista ou processo seletivo:
+Um candidato do plano Master teve a seguinte experiência em um processo seletivo:
 "${pergunta}"
 
-Responda em português brasileiro de forma clara, direta e encorajadora. Máximo de 200 palavras.
-1. O que provavelmente aconteceu (análise objetiva)
-2. O que poderia ter sido diferente (ação concreta)
-3. Como se preparar melhor para a próxima vez
+Responda em português brasileiro de forma direta, honesta e prática. Sem frases motivacionais vazias. O candidato quer saber o que fazer diferente.
 
-Sem asteriscos, sem markdown.`;
+Estruture sua resposta em 3 partes curtas, sem títulos, sem asteriscos, sem markdown:
+
+Parte 1 — O que provavelmente aconteceu: análise objetiva e honesta da situação. Se o candidato cometeu um erro, diga claramente. Se foi azar ou processo normal, diga também. Seja específico.
+
+Parte 2 — O que fazer diferente: uma ou duas ações concretas e específicas. Não "pratique mais" — diga exatamente O QUE praticar, COMO e POR QUÊ isso teria mudado o resultado.
+
+Parte 3 — Próximo passo nas próximas 48 horas: uma ação específica que o candidato pode tomar agora para se preparar melhor para a próxima oportunidade similar. Algo concreto, não genérico.
+
+Máximo de 220 palavras no total.`;
 
   try {
     const resposta = await chamarIA([{ role:'user', content: prompt }]);
