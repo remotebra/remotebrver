@@ -1542,20 +1542,33 @@ Retorne apenas o texto da cover letter, pronto para enviar.`;
 // ===== SCANNER ATS =====
 async function escanearATS(job) {
   if(!userProfile.cvLoaded) { showToast('Faça upload do seu currículo primeiro 📄'); return null; }
-  const prompt = `Você é especialista em ATS (Applicant Tracking Systems).
-Analise este currículo contra a descrição da vaga e retorne em português:
+ const prompt = `Você é um especialista sênior em recrutamento internacional com 15 anos de experiência em empresas americanas e europeias. Você conhece profundamente como funcionam os sistemas ATS (Workday, Greenhouse, Lever, iCIMS) e sabe exatamente o que faz um currículo passar ou ser rejeitado automaticamente.
 
-1. SCORE ATS: X/100
-2. PALAVRAS-CHAVE ENCONTRADAS: (liste as que estão no CV)
-3. PALAVRAS-CHAVE FALTANDO: (liste as da vaga que não estão no CV)
-4. PROBLEMAS DE FORMATAÇÃO: (itens que podem confundir o ATS)
-5. RECOMENDAÇÕES: (3 ações concretas para melhorar o score)
-
-Seja direto e específico. Sem markdown, sem asteriscos.
+Analise este currículo contra a vaga abaixo com o rigor de um recrutador real. Seja brutal e honesto — o candidato precisa saber a verdade para melhorar.
 
 VAGA: ${job.title} em ${job.company_name}
-REQUISITOS: ${filtrarDadosSensiveis(stripHtml(job.description).slice(0, 500))}
-CURRÍCULO: ${userProfile.cvProfissional.slice(0, 1200)}`;
+DESCRIÇÃO: ${filtrarDadosSensiveis(stripHtml(job.description).slice(0, 500))}
+CURRÍCULO: ${userProfile.cvProfissional.slice(0, 1200)}
+
+Retorne EXATAMENTE neste formato, sem asteriscos, sem markdown:
+
+SCORE ATS: X/100
+(explique em 1 linha por que essa nota)
+
+VEREDICTO: PASSA ou NÃO PASSA no filtro automático
+(explique em 1 linha o motivo principal)
+
+PALAVRAS-CHAVE ENCONTRADAS:
+(liste apenas as que realmente aparecem no currículo E são relevantes para a vaga)
+
+PALAVRAS-CHAVE CRÍTICAS FALTANDO:
+(liste as que a vaga exige e o currículo não tem — estas são as que eliminam o candidato)
+
+PROBLEMAS GRAVES:
+(liste apenas problemas reais que causam rejeição automática — foto, tabelas, colunas, fontes especiais, headers/footers com texto importante)
+
+QUICK WINS — faça isso HOJE:
+(3 mudanças específicas e concretas que o candidato pode fazer em 30 minutos para aumentar o score imediatamente. Seja específico: "substitua X por Y", não "melhore as palavras-chave")`;
   return await chamarIA([{ role: 'user', content: prompt }]);
 }
 
