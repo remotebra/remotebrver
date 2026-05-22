@@ -1,5 +1,5 @@
 const GEMINI_KEY = process.env.GEMINI_KEY;
-const GEMINI_URL = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=' + GEMINI_KEY;
+
 
 let lastCall = 0;
 const MIN_INTERVAL = 5000; // 4 segundos entre chamadas = máx 15/min
@@ -27,7 +27,9 @@ module.exports = async function handler(req, res) {
       }
     }
 
-    const response = await fetch(GEMINI_URL, {
+  if(!GEMINI_KEY) return res.status(500).json({ error: 'GEMINI_KEY não configurada' });
+const GEMINI_URL = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=' + GEMINI_KEY;
+const response = await fetch(GEMINI_URL, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
