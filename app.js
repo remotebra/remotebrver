@@ -1747,7 +1747,7 @@ const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZ
 // Inicializa o cliente Supabase (carregado via CDN no head)
 let sbClient = null;
 function initSupabase() {
-  if(typeof window.supabase !== 'undefined' && SUPABASE_URL !== 'https://uonupjxxrvzgwtodpsfp.supabase.co') {
+ if(typeof window.supabase !== 'undefined' && SUPABASE_URL) {
     sbClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
     checkSession();
   }
