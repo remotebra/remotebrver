@@ -676,7 +676,7 @@ function renderJobs(jobs) {
     // Salary highlight — show prominently if available
     const salDisplay = j.salary ? `<span class="jc-mi sal">💵 ${j.salary}</span>` : '';
 
-    return `<div class="job-card" id="jc-${j.id}" onclick="toggleJob(${JSON.stringify(j.id)})">
+    return `<div class="job-card" id="jc-${j.id}" onclick="toggleJob('${j.id}')">
       <div class="jc-main">
         <div class="job-logo">${logoHtml}</div>
         <div class="jc-body">
