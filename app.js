@@ -775,7 +775,7 @@ function renderJobs(jobs) {
 
 function toggleJob(id) {
   try {
-    const card = document.querySelector(`[id="jc-${id}"]`);
+    const card = document.getElementById('jc-' + id);
     if(!card) return;
     const wasExpanded = card.classList.contains('expanded');
     document.querySelectorAll('.job-card.expanded').forEach(c => c.classList.remove('expanded'));
