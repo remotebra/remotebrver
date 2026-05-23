@@ -775,14 +775,14 @@ function renderJobs(jobs) {
 
 function toggleJob(id) {
   try {
-    const card = document.getElementById('jc-' + id);
+    const card = document.querySelector(`[id="jc-${id}"]`);
     if(!card) return;
     const wasExpanded = card.classList.contains('expanded');
     document.querySelectorAll('.job-card.expanded').forEach(c => c.classList.remove('expanded'));
     if(!wasExpanded) {
       card.classList.add('expanded');
       setTimeout(() => card.scrollIntoView({ behavior:'smooth', block:'nearest' }), 50);
-      carregarAnaliseIA(id);
+      if(userProfile.plan) carregarAnaliseIA(id);
     }
   } catch(e) { console.error('toggleJob:', e); }
 }
