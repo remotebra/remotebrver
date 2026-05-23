@@ -773,10 +773,11 @@ function renderJobs(jobs) {
   }).join('');
 }
 
-function toggleJob(id) {
+function toggleJob(el) {
   try {
-    const card = document.getElementById('jc-' + id);
+    const card = el.closest ? el.closest('.job-card') : el;
     if(!card) return;
+    const id = card.dataset.id;
     const wasExpanded = card.classList.contains('expanded');
     document.querySelectorAll('.job-card.expanded').forEach(c => c.classList.remove('expanded'));
     if(!wasExpanded) {
